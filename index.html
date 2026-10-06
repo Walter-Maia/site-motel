@@ -21,8 +21,10 @@
 <meta name="twitter:description" content="Suítes temáticas e experiências privadas. Aberto 24 horas em Ipatinga, MG.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@800&family=Newsreader:ital,opsz,wght@0,6..72,300..600;1,6..72,300..600&family=Hanken+Grotesk:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/site.css">
+<!-- Abertura: decide antes da 1ª pintura. Toca a cada acesso, exceto com movimento reduzido ou aba em segundo plano. -->
+<script>(function(){try{if(document.hidden||matchMedia("(prefers-reduced-motion: reduce)").matches)return;document.documentElement.classList.add("intro-active")}catch(e){}})();</script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -49,12 +51,168 @@
 </head>
 <body data-page="home">
 
-<!-- LOADER -->
-<div class="loader" id="loader" aria-hidden="true">
-  <div class="loader-logo">MONT<span>BLACK</span></div>
-  <div class="loader-bar"><i></i></div>
-  <div class="loader-sub">Motel &bull; Ipatinga</div>
+<!-- ABERTURA (INTRO): o portão do Montblack — roteiro e tempos em assets/css/site.css -->
+<div class="intro" id="intro" aria-hidden="true" hidden>
+  <div class="intro-door intro-door--l">
+    <div class="intro-half">
+      <svg class="intro-word" viewBox="0 0 400.55 77" focusable="false" style="--mx:-577px">
+        <defs>
+          <mask id="in-mask-l" maskUnits="userSpaceOnUse" x="0" y="0" width="406.6" height="77"></mask>
+          <linearGradient id="in-edge-l" class="in-edge-g" gradientUnits="userSpaceOnUse" x1="406.6" x2="466.6"><stop offset="0"/><stop offset="1" stop-opacity="0"/></linearGradient>
+          <linearGradient id="in-glow-l" class="in-glow-g" gradientUnits="userSpaceOnUse" x1="421.6" x2="571.6"><stop offset="0" stop-opacity="0"/><stop offset=".18"/><stop offset="1" stop-opacity="0"/></linearGradient>
+        </defs>
+        <g class="in-fill"></g>
+        <g mask="url(#in-mask-l)"><rect class="in-glow" x="421.6" y="0" width="150" height="77" fill="url(#in-glow-l)"/></g>
+        <rect class="in-edge" x="-10" y="-5" width="476.6" height="87" fill="url(#in-edge-l)"/>
+        <g class="in-line">
+          <path pathLength="1" style="--d:0.77" d="M18.3 73L2 73L2 4.3L28.1 4.3L36.4 34.9Q36.9 36.5 37.6 39.3Q38.3 42 39 45Q39.7 48 40.2 50.4L41 50.4Q41.4 48.5 42 45.8Q42.6 43.2 43.3 40.3Q44 37.3 44.6 34.8L53 4.3L78.4 4.3L78.4 73L61 73L61 43.7Q61 39.4 61.1 35Q61.1 30.6 61.2 27Q61.3 23.4 61.3 21.8L60.5 21.8Q60.2 23.3 59.6 26.2Q58.9 29 58.2 32.1Q57.4 35.1 56.8 37.3L46.8 73L32.4 73L22.3 37.3Q21.8 35.3 21.1 32.5Q20.4 29.7 19.8 26.8Q19.1 23.9 18.6 21.9L17.8 21.9Q17.9 24.5 18 28.3Q18.1 32 18.2 36.1Q18.3 40.1 18.3 43.7L18.3 73Z"/>
+          <path pathLength="1" style="--d:0.54" d="M152.4 74.2Q141.1 74.2 133.1 70.3Q125 66.3 120.7 58.4Q116.4 50.5 116.4 38.6Q116.4 26.7 120.7 18.8Q125 11 133.1 7Q141.1 3.1 152.4 3.1Q163.7 3.1 171.8 7Q179.8 11 184.1 18.8Q188.4 26.7 188.4 38.6Q188.4 50.5 184.1 58.4Q179.8 66.3 171.8 70.3Q163.7 74.2 152.4 74.2ZM152.4 60.2Q156.7 60.2 160 58.9Q163.3 57.6 165.6 55.1Q167.8 52.6 168.9 49Q170 45.4 170 40.9L170 36.5Q170 31.9 168.9 28.3Q167.8 24.7 165.6 22.2Q163.3 19.7 160 18.4Q156.7 17.1 152.4 17.1Q148 17.1 144.7 18.4Q141.4 19.7 139.2 22.2Q137 24.7 135.9 28.3Q134.8 31.9 134.8 36.5L134.8 40.9Q134.8 45.4 135.9 49Q137 52.6 139.2 55.1Q141.4 57.6 144.7 58.9Q148 60.2 152.4 60.2Z"/>
+          <path pathLength="1" style="--d:0.31" d="M243 73L226.4 73L226.4 4.3L242.3 4.3L267.3 36.2Q268 37 269.2 38.5Q270.3 40 271.4 41.6Q272.5 43.1 273 44L273.5 43.9Q273.5 41.7 273.5 39.7Q273.5 37.6 273.5 36.2L273.5 4.3L290.1 4.3L290.1 73L274.3 73L247.8 39.4Q246.5 37.8 245.4 36.1Q244.2 34.4 243.5 33.3L243 33.4Q243 35 243 36.7Q243 38.3 243 39.4L243 73Z"/>
+          <path pathLength="1" style="--d:0.1" d="M366.2 73L348.3 73L348.3 19L326 19L326 4.3L388.5 4.3L388.5 19L366.2 19L366.2 73Z"/>
+        </g>
+      </svg>
+      <div class="intro-tag">
+        <svg class="intro-tag-word" viewBox="0 0 466.6 86" focusable="false" style="--r:5.426">
+          <path style="--k:4" d="M13.5 77.3L1 77.3L1 8.7L21.5 8.7L32.3 46.9Q32.9 48.9 33.5 51.4Q34.1 53.9 34.7 56.2Q35.2 58.5 35.5 60.2L36.3 60.2Q36.5 58.7 36.9 56.5Q37.3 54.3 37.9 51.8Q38.4 49.2 39.1 46.8L49.9 8.7L70.2 8.7L70.2 77.3L57.2 77.3L57.2 42.6Q57.2 38 57.3 33.4Q57.4 28.8 57.6 25.5Q57.7 22.2 57.7 21.6L56.9 21.6Q56.7 22.5 55.9 25.5Q55.1 28.5 54.2 32Q53.3 35.5 52.6 38L41.3 77.3L29.3 77.3L18 38.1Q17.4 36 16.7 33.1Q15.9 30.1 15.2 27Q14.4 23.9 13.8 21.6L13 21.6Q13.1 24.3 13.2 28.1Q13.3 31.8 13.4 35.6Q13.5 39.5 13.5 42.6L13.5 77.3Z"/>
+          <path style="--k:3" d="M148.9 78.5Q138.2 78.5 130.4 74.6Q122.6 70.8 118.5 62.9Q114.3 55 114.3 43Q114.3 30.9 118.5 23Q122.6 15.2 130.4 11.3Q138.2 7.5 148.9 7.5Q159.7 7.5 167.5 11.3Q175.2 15.2 179.4 23Q183.5 30.9 183.5 43Q183.5 55 179.4 62.9Q175.2 70.8 167.5 74.6Q159.7 78.5 148.9 78.5ZM148.9 67.5Q154.1 67.5 158.1 66Q162 64.5 164.7 61.6Q167.4 58.6 168.8 54.3Q170.2 49.9 170.2 44.2L170.2 42Q170.2 36.2 168.8 31.8Q167.4 27.4 164.7 24.4Q162 21.5 158.1 20Q154.1 18.5 148.9 18.5Q143.7 18.5 139.8 20Q135.8 21.5 133.1 24.4Q130.4 27.4 129.1 31.8Q127.7 36.2 127.7 42L127.7 44.2Q127.7 49.9 129.1 54.3Q130.4 58.6 133.1 61.6Q135.8 64.5 139.8 66Q143.7 67.5 148.9 67.5Z"/>
+          <path style="--k:2" d="M254.9 77.3L241.9 77.3L241.9 19.9L220 19.9L220 8.7L276.9 8.7L276.9 19.9L254.9 19.9L254.9 77.3Z"/>
+          <path style="--k:1" d="M373.1 77.3L319 77.3L319 8.7L372.5 8.7L372.5 19.8L332 19.8L332 36.7L368.1 36.7L368.1 47.8L332 47.8L332 66.2L373.1 66.2L373.1 77.3Z"/>
+          <path style="--k:0" d="M465.6 77.3L418.2 77.3L418.2 8.7L431.2 8.7L431.2 66L465.6 66L465.6 77.3Z"/>
+        </svg>
+        <i class="intro-rule"></i>
+        <span class="intro-stars"><i style="--s:0"></i><i style="--s:1"></i><i style="--s:2"></i></span>
+      </div>
+    </div>
+  </div>
+  <div class="intro-door intro-door--r">
+    <div class="intro-half">
+      <svg class="intro-word" viewBox="6 0 470.65 77" focusable="false" style="--mx:647px">
+        <defs>
+          <mask id="in-mask-r" maskUnits="userSpaceOnUse" x="0" y="0" width="476.7" height="77"></mask>
+          <linearGradient id="in-edge-r" class="in-edge-g" gradientUnits="userSpaceOnUse" x1="-60" x2="0"><stop offset="0" stop-opacity="0"/><stop offset="1"/></linearGradient>
+          <linearGradient id="in-glow-r" class="in-glow-g" gradientUnits="userSpaceOnUse" x1="-165" x2="-15"><stop offset="0" stop-opacity="0"/><stop offset=".82"/><stop offset="1" stop-opacity="0"/></linearGradient>
+        </defs>
+        <g class="in-fill"></g>
+        <g mask="url(#in-mask-r)"><rect class="in-glow" x="-165" y="0" width="150" height="77" fill="url(#in-glow-r)"/></g>
+        <rect class="in-edge" x="-60" y="-5" width="546.7" height="87" fill="url(#in-edge-r)"/>
+        <g class="in-line">
+          <path pathLength="1" style="--d:0.1" d="M60.4 73L18.1 73L18.1 4.3L60.1 4.3Q65.4 4.3 69.7 6.4Q74 8.5 76.5 12.3Q79.1 16.1 79.1 21.2Q79.1 25.7 77.5 28.9Q76 32.1 73.4 34.1Q70.9 36.1 67.7 37.1L67.7 37.5Q71.4 38.3 74.4 40.4Q77.4 42.4 79.1 45.9Q80.9 49.4 80.9 54.4Q80.9 60.3 78.1 64.5Q75.3 68.6 70.7 70.8Q66.1 73 60.4 73ZM36 44.3L36 59.2L55.5 59.2Q58.7 59.2 60.6 57.3Q62.6 55.4 62.6 51.5Q62.6 49.4 61.7 47.8Q60.9 46.1 59.2 45.2Q57.6 44.3 55.2 44.3L36 44.3ZM36 17.6L36 31.6L53.9 31.6Q56.1 31.6 57.6 30.7Q59.2 29.8 60 28.2Q60.9 26.6 60.9 24.4Q60.9 21.2 59 19.4Q57.1 17.6 54.2 17.6L36 17.6Z"/>
+          <path pathLength="1" style="--d:0.31" d="M171.4 73L118.6 73L118.6 4.3L136.5 4.3L136.5 58.3L171.4 58.3L171.4 73Z"/>
+          <path pathLength="1" style="--d:0.5" d="M218.6 73L200.2 73L226 4.3L247.5 4.3L273.3 73L254.2 73L250.1 61.1L222.7 61.1L218.6 73ZM232 33.2L227 47.7L245.7 47.7L240.8 33.2Q240.4 32.1 239.8 30.4Q239.3 28.8 238.7 26.9Q238.2 25.1 237.7 23.2Q237.2 21.3 236.7 19.9L236 19.9Q235.6 21.8 234.8 24.2Q234.1 26.6 233.3 29Q232.6 31.4 232 33.2Z"/>
+          <path pathLength="1" style="--d:0.71" d="M337.3 74.2Q326.2 74.2 318.4 70.4Q310.7 66.5 306.7 58.6Q302.7 50.7 302.7 38.6Q302.7 20.8 311.6 11.9Q320.6 3.1 337.3 3.1Q346.6 3.1 353.8 6.3Q361 9.4 365 15.7Q369.1 21.9 369.1 31.2L351.6 31.2Q351.6 26.8 349.8 23.7Q348.1 20.5 344.9 18.8Q341.8 17.1 337.3 17.1Q331.7 17.1 328.1 19.4Q324.5 21.7 322.8 26Q321.1 30.3 321.1 36.4L321.1 40.9Q321.1 47 322.8 51.4Q324.5 55.7 328 58Q331.6 60.2 337.2 60.2Q342 60.2 345.3 58.6Q348.7 57 350.4 53.9Q352.2 50.7 352.2 46.3L369.1 46.3Q369.1 55.6 365.1 61.8Q361.2 68 354 71.1Q346.9 74.2 337.3 74.2Z"/>
+          <path pathLength="1" style="--d:0.93" d="M424.8 73L406.9 73L406.9 4.3L424.8 4.3L424.8 34.8L452 4.3L474.2 4.3L448.6 32.4L474.7 73L453.5 73L436.2 44.6L424.8 55.1L424.8 73Z"/>
+        </g>
+      </svg>
+      <div class="intro-tag">
+        <span class="intro-stars"><i style="--s:2"></i><i style="--s:1"></i><i style="--s:0"></i></span>
+        <i class="intro-rule"></i>
+        <svg class="intro-tag-word" viewBox="0 0 684.1 86" focusable="false" style="--r:7.955">
+          <path style="--k:0" d="M14 77.3L1 77.3L1 8.7L14 8.7L14 77.3Z"/>
+          <path style="--k:1" d="M74.2 77.3L61.2 77.3L61.2 8.7L95.6 8.7Q103.2 8.7 108.2 11.4Q113.1 14.1 115.6 19Q118.1 23.9 118.1 30.7Q118.1 37.4 115.5 42.4Q112.9 47.4 107.8 50.1Q102.6 52.9 94.9 52.9L74.2 52.9L74.2 77.3ZM74.2 19.8L74.2 41.8L94.5 41.8Q99.5 41.8 102.3 38.8Q105 35.9 105 30.7Q105 27.2 103.8 24.8Q102.6 22.4 100.3 21.1Q98 19.8 94.5 19.8L74.2 19.8Z"/>
+          <path style="--k:2" d="M161.5 77.3L148.1 77.3L174.8 8.7L191.2 8.7L218 77.3L203.9 77.3L198.4 62.7L167 62.7L161.5 77.3ZM178 33.1L171.1 51.7L194.2 51.7L187.3 33.1Q186.9 32.1 186.4 30.6Q185.8 29 185.2 27.1Q184.6 25.3 184 23.4Q183.4 21.5 182.9 20L182.4 20Q181.8 22 181 24.6Q180.1 27.2 179.3 29.5Q178.5 31.8 178 33.1Z"/>
+          <path style="--k:3" d="M279.4 77.3L266.4 77.3L266.4 19.9L244.5 19.9L244.5 8.7L301.4 8.7L301.4 19.9L279.4 19.9L279.4 77.3Z"/>
+          <path style="--k:4" d="M356.5 77.3L343.5 77.3L343.5 8.7L356.5 8.7L356.5 77.3Z"/>
+          <path style="--k:5" d="M416.2 77.3L403.7 77.3L403.7 8.7L416.1 8.7L445.4 49.2Q445.9 49.8 446.6 50.8Q447.3 51.9 447.9 52.9Q448.5 53.9 448.7 54.5L449.2 54.5Q449.2 53.1 449.2 51.8Q449.2 50.5 449.2 49.2L449.2 8.7L461.7 8.7L461.7 77.3L449.4 77.3L420 36.5Q419.2 35.3 418.2 33.6Q417.1 31.8 416.7 31.1L416.2 31.1Q416.2 32.4 416.2 33.7Q416.2 35.1 416.2 36.5L416.2 77.3Z"/>
+          <path style="--k:6" d="M540.1 78.5Q524.2 78.5 515.4 70Q506.6 61.4 506.6 43Q506.6 30.9 510.7 23Q514.9 15.2 522.8 11.3Q530.6 7.5 541.6 7.5Q548.2 7.5 554 9Q559.8 10.5 564.3 13.5Q568.7 16.6 571.2 21.2Q573.7 25.8 573.7 32.1L560.3 32.1Q560.3 28.8 558.8 26.2Q557.4 23.7 554.8 21.9Q552.3 20.2 549 19.3Q545.7 18.5 542 18.5Q536.5 18.5 532.3 19.9Q528.2 21.4 525.4 24.3Q522.7 27.3 521.3 31.7Q520 36.1 520 42L520 44.1Q520 52.2 522.3 57.4Q524.6 62.6 529.3 65.1Q533.9 67.5 540.8 67.5Q546.7 67.5 551.2 65.7Q555.6 63.9 558.2 60.5Q560.7 57 560.7 52L560.7 51.3L538.8 51.3L538.8 40.5L573.7 40.5L573.7 77.3L564.4 77.3L563.3 69.7Q560.3 72.7 556.9 74.6Q553.5 76.6 549.4 77.6Q545.3 78.5 540.1 78.5Z"/>
+          <path style="--k:7" d="M626.6 77.3L613.2 77.3L639.9 8.7L656.3 8.7L683.1 77.3L669 77.3L663.5 62.7L632.1 62.7L626.6 77.3ZM643.1 33.1L636.2 51.7L659.3 51.7L652.4 33.1Q652 32.1 651.4 30.6Q650.9 29 650.3 27.1Q649.7 25.3 649.1 23.4Q648.5 21.5 648 20L647.5 20Q646.9 22 646.1 24.6Q645.2 27.2 644.4 29.5Q643.6 31.8 643.1 33.1Z"/>
+        </svg>
+      </div>
+    </div>
+  </div>
 </div>
+<script>
+/* Abertura: monta as camadas, toca e libera a página. A coreografia fica em site.css. */
+(function(){
+  var root = document.documentElement, intro = document.getElementById("intro");
+  /* sem a decisão do <head> ou sem o CSS da abertura (folha antiga em cache), não há abertura */
+  if(!root.classList.contains("intro-active") || getComputedStyle(intro).position !== "fixed"){
+    root.classList.remove("intro-active");
+    intro.remove();
+    return;
+  }
+  intro.hidden = false;
+  var LIT = 300;                        /* a fresta abre sozinha; o logotipo acende 0,3 s depois */
+  var TOTAL = 2650;                     /* do acender até o portão começar a abrir */
+  var WAIT = 1200;                      /* tolerância, em cada etapa, para a página terminar de montar */
+  var done = false, playing = false, booted = false, pending = null, timers = [];
+  var theme = document.querySelector('meta[name="theme-color"]'), themeWas = theme && theme.content;
+  var SCROLL_KEYS = { " ":1, PageDown:1, PageUp:1, ArrowDown:1, ArrowUp:1, End:1, Home:1 };
+
+  /* "open" = fim natural · "skip" = portão rápido · "now" = some na hora */
+  function finish(mode){
+    if(done) return;
+    done = true;
+    timers.forEach(clearTimeout);
+    document.removeEventListener("keydown", onKey, true);
+    document.removeEventListener("wheel", onGesture, true);
+    document.removeEventListener("touchstart", onGesture, true);
+    document.removeEventListener("pointerdown", onGesture, true);
+    document.removeEventListener("visibilitychange", onHidden);
+    document.removeEventListener("DOMContentLoaded", onBoot);
+    if(theme) theme.content = themeWas;
+    root.classList.remove("intro-active");
+    if(mode === "now"){ intro.remove(); return; }
+    root.classList.add("intro-leaving");
+    intro.classList.add("is-leaving");
+    if(mode === "skip") intro.classList.add("is-skipping");
+    setTimeout(function(){ intro.remove(); }, mode === "skip" ? 540 : 1000);
+    setTimeout(function(){ root.classList.remove("intro-leaving"); }, 1600);
+  }
+  function onKey(e){
+    if(e.key === "Tab") finish("now");
+    else if(e.key === "Escape" || e.key === "Enter") finish("skip");
+    else if(SCROLL_KEYS[e.key]){ e.preventDefault(); finish("skip"); }
+  }
+  function onGesture(e){
+    if(e.type === "pointerdown" && e.pointerType === "touch") return; /* o toque já chega por touchstart */
+    if(e.cancelable && e.type !== "pointerdown") e.preventDefault();   /* o gesto que pula não rola a página escondida */
+    finish("skip");
+  }
+  function onHidden(){ if(document.hidden) finish("now"); }
+  function onBoot(){ booted = true; if(pending) pending(); }
+  /* roda fn com a página montada e pintada (site.js monta tudo no DOMContentLoaded);
+     se ela demorar mais que WAIT, roda mesmo assim */
+  function whenBooted(fn){
+    var called = false;
+    function go(){ if(!called && !done){ called = true; pending = null; fn(); } }
+    function settle(){ requestAnimationFrame(function(){ requestAnimationFrame(go); }); }
+    if(booted) settle(); else pending = settle;
+    timers.push(setTimeout(go, WAIT));
+  }
+  function play(){
+    if(done || playing) return;
+    playing = true;
+    intro.classList.add("is-playing");
+    timers.push(setTimeout(function(){ whenBooted(light); }, LIT));
+  }
+  function light(){
+    intro.classList.add("is-lit");
+    timers.push(setTimeout(function(){ whenBooted(function(){ finish("open"); }); }, TOTAL));
+  }
+
+  try{
+    /* o contorno de cada letra vira também o preenchimento e a máscara da luz */
+    intro.querySelectorAll(".intro-word").forEach(function(svg){
+      var letters = svg.querySelector(".in-line").innerHTML;
+      svg.querySelector(".in-fill").innerHTML = letters;
+      svg.querySelector("mask").innerHTML = letters;
+    });
+    if(theme) theme.content = "#110b0b";
+    document.addEventListener("keydown", onKey, true);
+    document.addEventListener("wheel", onGesture, { capture:true, passive:false });
+    document.addEventListener("touchstart", onGesture, { capture:true, passive:false });
+    document.addEventListener("pointerdown", onGesture, true);
+    document.addEventListener("visibilitychange", onHidden);
+    document.addEventListener("DOMContentLoaded", onBoot);
+    /* duas pinturas antes de animar; o timer cobre abas em que o rAF não roda */
+    requestAnimationFrame(function(){ requestAnimationFrame(play); });
+    timers.push(setTimeout(play, 250));
+  }catch(err){
+    finish("now");
+  }
+})();
+</script>
+<!-- /ABERTURA -->
 
 <!-- CURSOR -->
 <div class="cursor" id="cursor" aria-hidden="true">
@@ -122,8 +280,8 @@
     <div class="container hero-grid">
       <div class="hero-copy">
         <span class="eyebrow on-dark hero-enter">Motel &bull; Ipatinga &bull; 24 horas</span>
-        <h1 class="display hero-enter d1">Momentos que merecem um lugar <em>inesquecível.</em></h1>
-        <p class="hero-sub hero-enter d2">21 suítes temáticas em três categorias — VIP, Master e Master Duplex — com hidromassagem, teto móvel e boate privativa. No Jardim Panorama, em Ipatinga, todos os dias, a qualquer hora.</p>
+        <h1 class="display hero-enter d1">Um endereço para noites <em>fora do comum.</em></h1>
+        <p class="hero-sub hero-enter d2">Vinte e uma suítes temáticas, cada uma com cenário próprio, hidromassagem, teto móvel e boate privativa. No Jardim Panorama, em Ipatinga, a qualquer hora do dia.</p>
         <div class="hero-ctas hero-enter d3">
           <a href="#/suites" class="btn btn-primary">Conhecer as suítes <span class="arrow">→</span></a>
           <button class="btn btn-outline on-dark" data-open-availability>Consultar disponibilidade</button>
@@ -149,7 +307,7 @@
           <span class="eyebrow">Comece por aqui</span>
           <h2 class="h2" id="intentsTitle">O que você procura?</h2>
         </div>
-        <p class="lead">Cada linha abaixo leva direto a uma área do site. Sem rolar até o fim da página para descobrir.</p>
+        <p class="lead">Suítes, valores, cardápio e endereço. Cada assunto a um toque de distância.</p>
       </div>
       <ol class="intent-list reveal reveal-d1" id="intentList"></ol>
     </div>
@@ -161,7 +319,7 @@
       <div class="section-head split reveal">
         <div>
           <span class="eyebrow">Suítes em destaque</span>
-          <h2 class="h2" id="featuredTitle">Uma de cada categoria</h2>
+          <h2 class="h2" id="featuredTitle">Três cenários para começar</h2>
         </div>
         <a href="#/suites" class="link-arrow">Ver todas as 21 suítes <span class="arrow">→</span></a>
       </div>
@@ -173,7 +331,7 @@
   <section class="exp-preview" aria-labelledby="expPrevTitle">
     <div class="container">
       <span class="eyebrow on-dark reveal">A experiência Montblack</span>
-      <h2 class="h2 reveal reveal-d1" id="expPrevTitle">Cada detalhe existe para que o mundo lá fora desapareça por <em>algumas horas.</em></h2>
+      <h2 class="h2 reveal reveal-d1" id="expPrevTitle">Tudo aqui foi pensado para que o mundo lá fora espere <em>algumas horas.</em></h2>
       <ul class="word-row reveal reveal-d2" aria-label="Comodidades principais">
         <li>Hidromassagem</li>
         <li>Teto móvel</li>
@@ -193,8 +351,8 @@
         <h2 class="h2" id="aboutPrevTitle">Mais que uma suíte, um universo à parte.</h2>
       </div>
       <div class="reveal reveal-d1">
-        <p class="lead">Cada ambiente do Montblack foi pensado como um cenário próprio: temas que atravessam continentes, hidromassagem, iluminação envolvente e a liberdade de um teto que se abre para o céu de Ipatinga.</p>
-        <p class="lead">Aqui, a discrição é parte da arquitetura — e o conforto, uma consequência natural.</p>
+        <p class="lead">Cada suíte do Montblack é um cenário completo. Os temas atravessam continentes, a luz muda o clima do ambiente e o teto se abre para o céu de Ipatinga.</p>
+        <p class="lead">A discrição faz parte da arquitetura. O conforto vem como consequência.</p>
         <a href="#/sobre" class="link-arrow">Conhecer o Montblack <span class="arrow">→</span></a>
       </div>
     </div>
@@ -217,7 +375,7 @@
     <div class="container">
       <span class="eyebrow on-dark reveal">Sua próxima lembrança</span>
       <h2 class="h2 reveal reveal-d1" id="ctaHomeTitle">O cenário está pronto. <em>Só falta você.</em></h2>
-      <p class="reveal reveal-d2">Escolha a suíte, o período e viva a experiência Montblack — a qualquer hora do dia ou da noite.</p>
+      <p class="reveal reveal-d2">Escolha a suíte e o período. O Montblack recebe você a qualquer hora do dia ou da noite.</p>
       <div class="cta-row reveal reveal-d3">
         <button class="btn btn-light" data-open-availability>Consultar disponibilidade <span class="arrow">→</span></button>
         <a href="#/contato" class="btn btn-outline on-dark">Como chegar</a>
@@ -234,7 +392,7 @@
     <div class="container">
       <span class="eyebrow on-dark">Suítes</span>
       <h1 class="display-sm">21 cenários. <em>Um só destino.</em></h1>
-      <p class="hero-sub">Três categorias de conforto — VIP, Master e Master Duplex — e vinte e um temas diferentes para nunca repetir a mesma história.</p>
+      <p class="hero-sub">Três categorias de conforto, VIP, Master e Master Duplex, e vinte e um temas para nunca repetir a mesma noite.</p>
     </div>
   </div>
 
@@ -300,34 +458,38 @@
 ============================================================ -->
 <section class="page" data-page="suite" aria-label="Detalhes da suíte">
   <div class="detail-hero" id="detailHero">
-    <div class="container detail-hero-inner">
-      <a href="#/suites" class="crumb">← Todas as suítes</a>
-      <span class="detail-cat" id="detailCat"></span>
-      <h1 class="display-sm" id="detailName"></h1>
+    <div class="container detail-hero-grid">
+      <div class="detail-hero-copy">
+        <a href="#/suites" class="crumb">← Todas as suítes</a>
+        <span class="detail-cat" id="detailCat"></span>
+        <h1 class="display-sm" id="detailName"></h1>
+        <p class="detail-desc" id="detailDesc"></p>
+        <p class="detail-from" id="detailFrom"></p>
+      </div>
+      <div class="detail-cover" id="detailCover"></div>
     </div>
   </div>
+
+  <section class="detail-gallery" aria-labelledby="galleryTitle">
+    <div class="container gallery-head">
+      <h2 class="detail-section-title" id="galleryTitle">Galeria</h2>
+      <span class="gallery-count" id="galleryCount"></span>
+      <div class="gallery-arrows" id="galleryArrows">
+        <button class="gallery-nav" id="galleryPrev" aria-label="Fotos anteriores">←</button>
+        <button class="gallery-nav" id="galleryNext" aria-label="Próximas fotos">→</button>
+      </div>
+    </div>
+    <div class="gallery-rail" id="galleryRail" tabindex="0" aria-label="Fotos e filme da suíte"></div>
+    <div class="container gallery-pending" id="galleryPending" hidden>
+      <b>Aguardando material</b>
+      <p>As fotografias e o filme desta suíte serão publicados em breve. Valores e comodidades já estão disponíveis abaixo.</p>
+    </div>
+  </section>
+
   <div class="container detail-body">
     <div class="detail-main">
-      <p class="detail-desc" id="detailDesc"></p>
-      <h2 class="detail-section-title">Galeria</h2>
-      <div class="gallery">
-        <div class="gallery-main" id="galleryMain" data-cursor="Ampliar" role="button" tabindex="0" aria-label="Ampliar imagem da galeria">
-          <span class="gallery-counter" id="galleryCounter">1 / 3</span>
-          <button class="gallery-nav prev" id="galleryPrev" aria-label="Imagem anterior">←</button>
-          <button class="gallery-nav next" id="galleryNext" aria-label="Próxima imagem">→</button>
-        </div>
-        <div class="gallery-thumbs" id="galleryThumbs" role="tablist" aria-label="Miniaturas da galeria"></div>
-      </div>
       <h2 class="detail-section-title">Comodidades</h2>
       <ul class="detail-amenities" id="detailAmenities"></ul>
-    </div>
-    <aside class="detail-side">
-      <div class="price-box">
-        <h2>Valores</h2>
-        <div class="price-rows" id="detailPrices"></div>
-        <p class="price-note">Hora adicional após 2 horas: R$ 30,00. Pernoite válido de domingo à sexta-feira, das 18:00 às 14:00.</p>
-        <button class="btn btn-primary" id="detailAvailBtn">Consultar disponibilidade <span class="arrow">→</span></button>
-      </div>
       <details class="detail-rules">
         <summary>Regras da casa</summary>
         <div class="detail-rules-body">
@@ -336,6 +498,14 @@
           Preços sujeitos a alteração sem aviso prévio.
         </div>
       </details>
+    </div>
+    <aside class="detail-side">
+      <div class="price-box">
+        <h2>Valores</h2>
+        <div class="price-rows" id="detailPrices"></div>
+        <p class="price-note">Hora adicional após 2 horas: R$ 30,00. Pernoite válido de domingo à sexta-feira, das 18:00 às 14:00.</p>
+        <button class="btn btn-primary" id="detailAvailBtn">Consultar disponibilidade <span class="arrow">→</span></button>
+      </div>
     </aside>
     <nav class="detail-nav" aria-label="Navegar entre suítes">
       <a id="detailPrevLink" href="#/suites"><span class="dn-dir">← Suíte anterior</span><span class="dn-name" id="detailPrevName"></span></a>
@@ -352,18 +522,18 @@
     <div class="container">
       <span class="eyebrow on-dark">Experiência</span>
       <h1 class="display-sm">Tudo que faz parte <em>da estadia.</em></h1>
-      <p class="hero-sub">Cada detalhe existe para que o mundo lá fora desapareça por algumas horas.</p>
+      <p class="hero-sub">Água quente, luz baixa, céu aberto e silêncio. O que cada suíte oferece, item por item.</p>
     </div>
   </div>
 
   <section class="exp-section" aria-labelledby="expTitle">
     <div class="container exp-layout">
       <div class="exp-scene-col">
-        <div class="exp-stage" id="expStage" aria-label="Cena com fotografias das comodidades; a foto em destaque acompanha o item da lista">
+        <div class="exp-stage" id="expStage" aria-label="Fotografias das suítes; a foto em destaque acompanha o item da lista">
           <div class="exp-deck" id="expDeck"></div>
           <div class="exp-stage-foot" aria-hidden="true">
             <span class="exp-count" id="expCount">01 / 09</span>
-            <span class="exp-hint">Passe pela lista para trocar a cena</span>
+            <span class="exp-hint">Fotografias das suítes do Montblack</span>
           </div>
         </div>
       </div>
@@ -407,7 +577,7 @@
     <div class="container">
       <span class="eyebrow on-dark">Cardápio</span>
       <h1 class="display-sm">Um menu <em>para folhear.</em></h1>
-      <p class="hero-sub">Cervejas geladas, espumantes, drinks e porções generosas — servidos na privacidade da sua suíte.</p>
+      <p class="hero-sub">Cervejas geladas, espumantes, drinks e porções generosas, servidos na privacidade da sua suíte.</p>
     </div>
   </div>
 
@@ -621,8 +791,8 @@
   <span class="lightbox-caption" id="lightboxCaption"></span>
   <button class="lightbox-close" id="lightboxClose" aria-label="Fechar visualização">✕</button>
   <div class="lightbox-stage" id="lightboxStage"></div>
-  <button class="gallery-nav prev fixed" id="lightboxPrev" aria-label="Imagem anterior">←</button>
-  <button class="gallery-nav next fixed" id="lightboxNext" aria-label="Próxima imagem">→</button>
+  <button class="gallery-nav prev" id="lightboxPrev" aria-label="Imagem anterior">←</button>
+  <button class="gallery-nav next" id="lightboxNext" aria-label="Próxima imagem">→</button>
   <span class="lightbox-counter" id="lightboxCounter"></span>
 </div>
 

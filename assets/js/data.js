@@ -8,17 +8,21 @@
 window.MB = window.MB || {};
 
 /* ------------------------------------------------------------
-   IMAGENS ILUSTRATIVAS (temporárias)
-   As fotos abaixo são do Unsplash e servem APENAS para visualizar
-   o layout — não são fotos do Montblack. Para usar fotos reais,
-   troque cada ID por um caminho local (ex.: "img/arabe-1.jpg")
-   ou uma URL completa; a função MB.img entende os dois formatos.
+   FOTOGRAFIAS E FILMES
+   Todo o material é do próprio Montblack e fica em assets/media/<id-da-suíte>/:
+     01.webp, 02.webp …   fotos (1200 px de largura) — a 01 é a capa
+     01-sm.webp …         as mesmas fotos em 600 px, para miniaturas
+     filme.mp4            vídeo da suíte · filme.webp = capa do vídeo
+   MB.img escolhe sozinha a versão menor quando a imagem aparece pequena.
+   Suíte sem pasta de mídia aparece no site como "Aguardando material".
 ------------------------------------------------------------ */
+MB.mediaPath = "assets/media/";
 MB.img = function(src, w){
   if(!src) return null;
-  if(src.includes("/") || src.includes(".")) return src; /* caminho local ou URL completa */
-  return "https://images.unsplash.com/photo-" + src + "?auto=format&fit=crop&w=" + (w || 1200) + "&q=70";
+  if(w && w <= 640 && src.startsWith(MB.mediaPath)) return src.replace(/\.webp$/, "-sm.webp");
+  return src;
 };
+MB.shot = function(id, n){ return MB.mediaPath + id + "/" + String(n).padStart(2,"0") + ".webp"; };
 
 /* ------------------------------------------------------------
    DADOS DO NEGÓCIO
@@ -55,7 +59,7 @@ MB.lodging = {
 MB.categories = {
   vip: {
     id: "vip", label: "VIP", title: "Suítes VIP", count: 13,
-    image: "1631049307264-da0ec9d70304",
+    image: MB.shot("japonesa", 1),
     tagline: "Treze cenários temáticos com hidromassagem, boate e teto móvel — a porta de entrada para a experiência Montblack.",
     amenities: ["Ar-condicionado", 'TV LCD 52"', 'TV LCD 32"', "Hidromassagem", "Frigobar", "Boate", "Teto móvel"],
     prices: { oneHour: 93, twoHours: 113, overnight: 180 },
@@ -63,7 +67,7 @@ MB.categories = {
   },
   master: {
     id: "master", label: "Master", title: "Suítes Master", count: 6,
-    image: "1587985064135-0366536eab42",
+    image: MB.shot("romana", 1),
     tagline: "Ambientes amplos com spa com hidromassagem, duas TVs LED e o dobro de conforto para quem quer ir além.",
     amenities: ["Ar-condicionado", '2 TVs LED de 47"', "Spa com hidromassagem", "2 frigobares", "Boate", "Teto móvel"],
     prices: { oneHour: null, twoHours: 120, overnight: 190 },
@@ -71,7 +75,7 @@ MB.categories = {
   },
   duplex: {
     id: "duplex", label: "Master Duplex", title: "Master Duplex", count: 2,
-    image: "1602872030219-ad2b9a54315c",
+    image: "",   /* Baiana e Árabe ainda sem fotos */
     tagline: "Dois andares, spa com hidromassagem e a mais completa estrutura da casa — a experiência Montblack em sua forma máxima.",
     amenities: ["2 andares", "Ar-condicionado", '2 TVs LED de 47"', "Spa com hidromassagem", "2 frigobares", "Boate", "Teto móvel"],
     prices: { oneHour: null, twoHours: 125, overnight: 200 },
@@ -81,11 +85,15 @@ MB.categories = {
 
 /* ------------------------------------------------------------
    SUÍTES — 21 (13 VIP, 6 MASTER, 2 MASTER DUPLEX)
-   images: adicione URLs de fotos reais aqui (ex.: ["img/arabe-1.jpg", ...]).
-   Enquanto vazio, o site usa composições visuais de placeholder.
+   Último argumento = legendas das fotos, na ordem dos arquivos
+   01.webp, 02.webp … da pasta assets/media/<id>/ (a 01 é a capa).
+   Use null enquanto a suíte não tiver fotos: o site mostra
+   "Aguardando material". Para a suíte sem vídeo, acrescente
+   false ao final: mbSuite(…, [legendas], false).
 ------------------------------------------------------------ */
-function mbSuite(id, name, category, description, tones, views, images){
+function mbSuite(id, name, category, description, tones, shots, film){
   const cat = MB.categories[category];
+  const views = shots || [];
   return {
     id, name, category,
     categoryLabel: cat.label,
@@ -93,37 +101,38 @@ function mbSuite(id, name, category, description, tones, views, images){
     amenities: cat.amenities,
     prices: cat.prices,
     tones: tones || cat.tones,
-    images: images || [],
-    views: views || ["Ambiente principal", "Hidromassagem", "Detalhes da suíte"]
+    views,
+    images: views.map((_, i) => MB.shot(id, i + 1)),
+    film: views.length && film !== false ? { src: MB.mediaPath + id + "/filme.mp4", poster: MB.mediaPath + id + "/filme.webp" } : null
   };
 }
 
 MB.suites = [
-  mbSuite("bangalo","Bangalô","vip","Atmosfera de refúgio tropical: madeira, texturas naturais e a sensação de estar longe de tudo — a poucos minutos do centro de Ipatinga.",["#1e1a12","#4a3a1a","#8a6a2a"],null,["1611892440504-42a792e24d32","1571003123894-1f0594d2b5d9","1540555700478-4be289fbecef"]),
-  mbSuite("high-tech","High Tech","vip","Linhas futuristas, iluminação cênica e tecnologia em cada detalhe para quem gosta de encontros com clima contemporâneo.",["#101418","#1e3a4a","#3a6a8a"],null,["1566665797739-1674de7a421a","1600566752355-35792bedcfea","1518005020951-eccb494ad742"]),
-  mbSuite("titanic","Titanic","vip","Romantismo clássico inspirado na elegância dos grandes transatlânticos — um convite a uma noite memorável.",["#101620","#1a2a4a","#4a6a9a"],null,["1631049307264-da0ec9d70304","1552321554-5fefe8c9ef14","1582719508461-905c673771fd"]),
-  mbSuite("mexicana","Mexicana","vip","Cores quentes e personalidade vibrante: a energia do México traduzida em um cenário intimista.",["#2a1208","#7a2a10","#c2652a"],null,["1540518614846-7eded433c457","1584622650111-993a426fbf0a","1551024709-8f23befc6f87"]),
-  mbSuite("texana","Texana","vip","O espírito livre do velho oeste em um ambiente rústico e acolhedor, feito para encontros sem pressa.",["#241610","#5a3018","#9a6a3a"],null,["1578683010236-d716f9a3f461","1595846519845-68e298c2edd8","1523567830207-96731740fa71"]),
-  mbSuite("japonesa","Japonesa","vip","Minimalismo oriental, equilíbrio e serenidade — um cenário zen para desacelerar a dois.",["#181414","#5a1a1a","#a83a3a"],null,["1616594039964-ae9021a400a0","1507652313519-d4e9174996dd","1608501078713-8e445a709b39"]),
-  mbSuite("indiana","Indiana","vip","Texturas ricas e tons profundos inspirados na Índia, para uma experiência sensorial envolvente.",["#1c1020","#4a1a4a","#8a3a7a"],null,["1444201983204-c43cbd584d93","1544161515-4ab6ce6db874","1536935338788-846bb9981813"]),
-  mbSuite("egipcia","Egípcia","vip","O mistério do Egito antigo em dourados e sombras — majestade e intimidade no mesmo ambiente.",["#1a1408","#5a4210","#b8922a"],null,["1505693416388-ac5ce068fe85","1519823551278-64ac92734fb1","1514362545857-3bc16c4c7d1b"]),
-  mbSuite("havaiana","Havaiana","vip","Clima de ilha, leveza e descontração: um pedaço do paraíso para chamar de seu por algumas horas.",["#0f1a16","#1a5a4a","#3a9a7a"],null,["1596394516093-501ba68a0ba6","1571896349842-33c89424de2d","1520250497591-112f2f40a3f4"]),
-  mbSuite("executiva","Executiva","vip","Sobriedade e conforto em estado puro — a escolha certeira para quem valoriza discrição e elegância.",["#141414","#2a2a2e","#5a5a64"],null,["1522771739844-6a9f6d5f14af","1604709177225-055f99402ea3","1598300042247-d088f8ab3a91"]),
-  mbSuite("inglesa","Inglesa","vip","Charme britânico clássico: atmosfera de clube privado com o aconchego que só o Montblack entrega.",["#101410","#1a3a2a","#3a6a4a"],null,["1615874694520-474822394e73","1620626011761-996317b8d101","1600210492486-724fe5c67fb0"]),
-  mbSuite("marroquina","Marroquina","vip","Arabescos, tons terrosos e uma iluminação que transforma o ambiente em um riad particular.",["#20120c","#6a2a14","#b05a2a"],null,["1505577058444-a3dab90d4253","1544161515-4ab6ce6db874","1445019980597-93fa8acb246c"]),
-  mbSuite("paulista","Paulista","vip","Urbana e cosmopolita, com a energia da metrópole traduzida em design e conforto.",["#121214","#2a2a3a","#4a4a6a"],null,["1568495248636-6432b97bd949","1595515106969-1ce29566ff1c","1541971875076-8f970d573be6"]),
-  mbSuite("espanhola","Espanhola","master","Paixão em forma de ambiente: tons intensos, spa com hidromassagem e espaço de sobra para viver o momento.",["#240c0c","#6a1414","#a82a2a"],null,["1587985064135-0366536eab42","1584622650111-993a426fbf0a","1519643381401-22c77e60520e"]),
-  mbSuite("francesa","Francesa","master","Romance parisiense com sofisticação Master — duas TVs, spa e um cenário digno de cinema.",["#181018","#4a1a3a","#8a3a6a"],null,["1512918728675-ed5a9ecdebfd","1507652313519-d4e9174996dd","1598928506311-c55ded91a20c"]),
-  mbSuite("las-vegas","Las Vegas","master","O brilho da cidade que nunca dorme em uma suíte feita para noites tão intensas quanto inesquecíveis.",["#100c18","#2a1a5a","#5a3aa8"],null,["1595576508898-0ad5c879a061","1571896349842-33c89424de2d","1517840901100-8179e982acb7"]),
-  mbSuite("romana","Romana","master","Colunas, drapeados e a grandiosidade do império romano a serviço do seu prazer e do seu descanso.",["#161410","#4a3a1a","#8a7a3a"],null,["1590490360182-c33d57733427","1620626011761-996317b8d101","1509024644558-2f56ce76c490"]),
-  mbSuite("harley-davidson","Harley Davidson","master","Atitude sobre duas rodas: um cenário com personalidade forte para casais que aceleram juntos.",["#121110","#3a2410","#7a4a1a"],null,["1615873968403-89e068629265","1595515106969-1ce29566ff1c","1470337458703-46ad1756a187"]),
-  mbSuite("country","Country","master","O aconchego do campo com estrutura Master completa — rusticidade elegante e spa com hidromassagem.",["#181208","#4a3210","#8a6a3a"],null,["1595526114035-0d45ed16cfbf","1540555700478-4be289fbecef","1560184897-ae75f418493e"]),
-  mbSuite("baiana","Baiana","duplex","Dois andares de axé e aconchego: a alegria da Bahia em uma das suítes mais completas da casa.",["#20100a","#6a3a10","#c28a2a"],["Ambiente principal","Spa com hidromassagem","Segundo andar","Detalhes da suíte"],["1594563703937-fdc640497dcd","1520250497591-112f2f40a3f4","1502005229762-cf1b2da7c5d6","1490750967868-88aa4486c946"]),
-  mbSuite("arabe","Árabe","duplex","Uma noite das mil e uma noites em duplex: tendas, tons profundos, spa e privacidade absoluta em dois andares.",["#180c14","#4a1430","#8a2a5a"],["Ambiente principal","Spa com hidromassagem","Segundo andar","Detalhes da suíte"],["1618773928121-c32242e63f39","1600566752355-35792bedcfea","1602872030219-ad2b9a54315c","1445019980597-93fa8acb246c"])
+  mbSuite("bangalo","Bangalô","vip","Cama sob um pergolado de madeira, luz âmbar e a hidromassagem banhada em verde do outro lado do vidro. Um refúgio de clima tropical, a poucos minutos do centro de Ipatinga.",["#1e1a12","#4a3a1a","#8a6a2a"],["Ambiente principal","Estar","Hidromassagem e cama","Vista pelo vidro","Hidromassagem"]),
+  mbSuite("high-tech","High Tech","vip","Piso negro, luz azul e um mural de palco que ocupa a parede inteira. A suíte mais noturna da casa, com globo espelhado e hidromassagem sob o teto móvel.",["#101418","#1e3a4a","#3a6a8a"],["Ambiente principal","Cama e mural","Luz azul","Cama","Estar","Teto móvel"]),
+  mbSuite("titanic","Titanic","vip","Romantismo clássico inspirado na elegância dos grandes transatlânticos. Um convite a uma noite memorável.",["#101620","#1a2a4a","#4a6a9a"],null),
+  mbSuite("mexicana","Mexicana","vip","Um sombrero gigante suspenso sobre a cama redonda, cactos e piso de pedra. Calorosa e bem-humorada, com hidromassagem sob o céu aberto.",["#2a1208","#7a2a10","#c2652a"],["Ambiente principal","Cama redonda","Vista da entrada","Teto móvel","Hidromassagem","Banheiro"]),
+  mbSuite("texana","Texana","vip","Madeira escura, um entardecer de faroeste pintado na parede e a hidromassagem redonda sob o teto móvel. Feita para encontros sem pressa.",["#241610","#5a3018","#9a6a3a"],["Cama e mural","Ambiente principal","Hidromassagem","Teto móvel","Cama","Hidromassagem e cama","Estar","Banheiro"], false), /* filme ainda não convertido: tirar o false quando assets/media/texana/filme.mp4 existir */
+  mbSuite("japonesa","Japonesa","vip","Vermelho laqueado, painéis em treliça e cama baixa sobre um tablado de madeira. Linhas limpas, bambu e uma calma que desacelera a noite.",["#181414","#5a1a1a","#a83a3a"],["Cama e mural","Ambiente principal","Estar e cama","Teto móvel","Hidromassagem"]),
+  mbSuite("indiana","Indiana","vip","Um pavilhão de madeira entalhada abriga a cama redonda, diante do Taj Mahal ao entardecer. Piso em mosaico colorido e hidromassagem entre folhagens.",["#1c1020","#4a1a4a","#8a3a7a"],["Cama e pavilhão","Cama redonda","Hidromassagem","Detalhe da hidromassagem","Estar","Estar e pavilhão"]),
+  mbSuite("egipcia","Egípcia","vip","Hieróglifos em relevo percorrem a parede alta, acima da hidromassagem cercada de palmeiras. Dourados, sombras e um teto que se abre para o céu.",["#1a1408","#5a4210","#b8922a"],["Ambiente principal","Cama","Hidromassagem e teto móvel","Estar"]),
+  mbSuite("havaiana","Havaiana","vip","Cama redonda sob um pergolado de troncos, painel de coqueirais e luz verde-água. Clima de ilha, com a hidromassagem voltada para o céu.",["#0f1a16","#1a5a4a","#3a9a7a"],["Cama redonda","Pergolado","Ambiente principal","Teto móvel","Hidromassagem","Luzes da boate"]),
+  mbSuite("executiva","Executiva","vip","Tons claros, mármore e uma cama redonda no centro do ambiente. Sóbria e silenciosa, com mesa de trabalho e hidromassagem em jardim iluminado.",["#141414","#2a2a2e","#5a5a64"],["Cama redonda","Mesa e cama","Mesa de trabalho","Cama e mezanino","Estar","Hidromassagem","Cama"]),
+  mbSuite("inglesa","Inglesa","vip","Paredes vermelhas, piso de arabescos e uma cabeceira em forma de lábios como peça central. Teatral na medida certa, com hidromassagem sob o teto móvel.",["#1c0c0c","#5a1414","#a02a2a"],["Cama","Hidromassagem e cama","Hidromassagem","Cama e telas","Teto móvel","Frigobar","Banheiro"]),
+  mbSuite("marroquina","Marroquina","vip","Tecidos suspensos no teto, ladrilhos estampados e folhagens iluminadas. Um riad particular, de luz baixa e hidromassagem de canto.",["#20120c","#6a2a14","#b05a2a"],["Cama e tecidos","Ambiente principal","Estar","Hidromassagem","Ducha","Banheiro"]),
+  mbSuite("paulista","Paulista","vip","Uma fachada azul de sobrado, com portas de madeira e lampião de rua, emoldura a cama. A cidade em versão íntima, com hidromassagem sob o teto móvel.",["#121214","#1a2a4a","#3a5a8a"],["Cama e lampião","Cama","Fachada","Teto móvel","Hidromassagem","Vista da cama"], false), /* filme ainda não convertido: tirar o false quando assets/media/paulista/filme.mp4 existir */
+  mbSuite("espanhola","Espanhola","master","Cama redonda em capitonê vermelho e hidromassagem em formato de coração sobre um tablado de pedra. Espaço Master, luz cênica e um teto que se abre.",["#240c0c","#6a1414","#a82a2a"],["Cama redonda","Spa com hidromassagem","Spa e cama","Detalhe do spa","Teto móvel","Banheiro"]),
+  mbSuite("francesa","Francesa","master","Lambris de madeira escura, lustres e espelhos em arco. Um salão parisiense em escala íntima, com spa ao fundo e a estrutura Master completa.",["#181018","#4a1a3a","#8a3a6a"],["Ambiente principal","Cama","Vista da cama","Spa com hidromassagem","Banheiro"]),
+  mbSuite("las-vegas","Las Vegas","master","Pastilhas douradas, piso negro e o horizonte da cidade iluminado na parede. Spa redondo e luzes de boate para noites que não têm hora.",["#100c18","#2a1a5a","#5a3aa8"],["Cama e tela","Ambiente principal","Spa com hidromassagem","Painel da cidade","Estar","Cama","Spa","Ducha"]),
+  mbSuite("romana","Romana","master","A cama repousa sob arcos brancos, diante de um afresco da Fontana di Trevi. Granito, luz suave e o spa no alto de uma escadaria.",["#161410","#4a3a1a","#8a7a3a"],["Cama e afresco","Arcos","Ambiente principal","Estar e spa","Teto móvel","Spa com hidromassagem","Luz da boate","Ducha"], false), /* filme ainda não convertido: tirar o false quando assets/media/romana/filme.mp4 existir */
+  mbSuite("harley-davidson","Harley Davidson","master","Piso negro espelhado, murais de estrada e uma moto suspensa na parede. Personalidade forte, com spa e teto móvel.",["#121110","#3a2410","#7a4a1a"],["Cama e mural","Cama","Spa e cama","Spa com hidromassagem","Teto móvel","Ducha"]),
+  mbSuite("country","Country","master","O aconchego do campo com a estrutura Master completa: rusticidade elegante e spa com hidromassagem.",["#181208","#4a3210","#8a6a3a"],null),
+  mbSuite("baiana","Baiana","duplex","Dois andares de axé e aconchego: a alegria da Bahia em uma das suítes mais completas da casa.",["#20100a","#6a3a10","#c28a2a"],null),
+  mbSuite("arabe","Árabe","duplex","Uma noite das mil e uma noites em duplex: tendas, tons profundos, spa e privacidade absoluta em dois andares.",["#180c14","#4a1430","#8a2a5a"],null)
 ];
 
-/* Suítes exibidas em destaque na Home (uma por categoria) */
-MB.featured = ["arabe", "francesa", "high-tech"];
+/* Suítes exibidas em destaque na Home (a primeira ocupa o quadro maior) */
+MB.featured = ["romana", "japonesa", "mexicana"];
 
 /* ------------------------------------------------------------
    CARDÁPIO — valores: consultar na recepção (price: null → "Consulte")
@@ -169,15 +178,15 @@ MB.menu = [
    COMODIDADES (PÁGINA EXPERIÊNCIA)
 ------------------------------------------------------------ */
 MB.experiences = [
-  {t:"Hidromassagem", d:"Água quente, luz baixa e tempo só de vocês. Presente em todas as suítes.", image:"1507652313519-d4e9174996dd"},
-  {t:"Spa", d:"Nas suítes Master e Master Duplex, o spa com hidromassagem eleva a experiência.", image:"1620626011761-996317b8d101"},
-  {t:"Teto móvel", d:"Abra o teto e deixe o céu de Ipatinga entrar no quarto.", image:"1596394516093-501ba68a0ba6"},
-  {t:"Boate privativa", d:"Sua pista de dança particular, com clima de balada só para dois.", image:"1541971875076-8f970d573be6"},
-  {t:"Ar-condicionado", d:"Clima perfeito em qualquer estação, do jeito que vocês preferirem.", image:"1522771739844-6a9f6d5f14af"},
-  {t:"TV em todas as suítes", d:'Telas LCD e LED de até 52" para trilhas sonoras e maratonas a dois.', image:"1587985064135-0366536eab42"},
-  {t:"Frigobar", d:"Bebidas geladas ao alcance da mão — sem precisar sair do quarto.", image:"1523567830207-96731740fa71"},
-  {t:"Privacidade", d:"Entrada discreta e atendimento que respeita o seu momento.", image:"1517840901100-8179e982acb7"},
-  {t:"Ambientes temáticos", d:"21 cenários diferentes para nunca repetir a mesma história.", image:"1444201983204-c43cbd584d93"}
+  {t:"Hidromassagem", d:"Água quente, luz baixa e tempo só de vocês. Presente em todas as suítes.", image:MB.shot("havaiana", 5)},
+  {t:"Spa", d:"Nas suítes Master e Master Duplex, o spa com hidromassagem eleva a experiência.", image:MB.shot("romana", 6)},
+  {t:"Teto móvel", d:"Abra o teto e deixe o céu de Ipatinga entrar no quarto.", image:MB.shot("japonesa", 4)},
+  {t:"Boate privativa", d:"Sua pista de dança particular, com clima de balada só para dois.", image:MB.shot("las-vegas", 2)},
+  {t:"Ar-condicionado", d:"Clima perfeito em qualquer estação, do jeito que vocês preferirem.", image:MB.shot("executiva", 4)},
+  {t:"TV em todas as suítes", d:'Telas LCD e LED de até 52" para trilhas sonoras e maratonas a dois.', image:MB.shot("las-vegas", 4)},
+  {t:"Frigobar", d:"Bebidas geladas ao alcance da mão — sem precisar sair do quarto.", image:MB.shot("inglesa", 6)},
+  {t:"Privacidade", d:"Entrada discreta e atendimento que respeita o seu momento.", image:MB.shot("marroquina", 3)},
+  {t:"Ambientes temáticos", d:"21 cenários diferentes para nunca repetir a mesma história.", image:MB.shot("indiana", 1)}
 ];
 
 /* ------------------------------------------------------------
@@ -214,10 +223,10 @@ MB.faq = [
    "O QUE VOCÊ PROCURA?" — índice de navegação da Home
 ------------------------------------------------------------ */
 MB.intents = [
-  { n:"01", t:"Conhecer as 21 suítes", d:"Do Bangalô à Árabe, em três categorias de conforto.", href:"#/suites", tones:["#180c14","#4a1430","#8a2a5a"], label:"Suítes", image:"1618773928121-c32242e63f39" },
-  { n:"02", t:"Ver valores e períodos", d:"1 hora, 2 horas ou pernoite — tabela completa por categoria.", href:"#/suites?to=valores", tones:["#33161a","#601313","#8a3a2a"], label:"Valores", image:"1505693416388-ac5ce068fe85" },
-  { n:"03", t:"O que tem em cada suíte", d:"Hidromassagem, spa, teto móvel, boate privativa e mais.", href:"#/experiencia", tones:["#0f1a16","#1a5a4a","#3a9a7a"], label:"Experiência", image:"1620626011761-996317b8d101" },
-  { n:"04", t:"Folhear o cardápio", d:"Bebidas, espumantes, drinks e porções servidos na suíte.", href:"#/cardapio", tones:["#1a1408","#5a4210","#b8922a"], label:"Cardápio", image:"1551024709-8f23befc6f87" },
-  { n:"05", t:"Onde fica e como chegar", d:"Jardim Panorama, Ipatinga — Google Maps e Waze.", href:"#/contato", tones:["#101620","#1a2a4a","#4a6a9a"], label:"Localização", image:"1517840901100-8179e982acb7" },
-  { n:"06", t:"Tirar dúvidas", d:"Horários, pernoite, idade mínima e como reservar.", href:"#/sobre?to=duvidas", tones:["#141414","#2a2a2e","#5a5a64"], label:"Dúvidas", image:"1524758631624-e2822e304c36" }
+  { n:"01", t:"Conhecer as 21 suítes", d:"Do Bangalô à Árabe, em três categorias de conforto.", href:"#/suites", tones:["#180c14","#4a1430","#8a2a5a"], label:"Suítes", image:MB.shot("las-vegas", 1) },
+  { n:"02", t:"Ver valores e períodos", d:"1 hora, 2 horas ou pernoite — tabela completa por categoria.", href:"#/suites?to=valores", tones:["#33161a","#601313","#8a3a2a"], label:"Valores", image:MB.shot("espanhola", 1) },
+  { n:"03", t:"O que tem em cada suíte", d:"Hidromassagem, spa, teto móvel, boate privativa e mais.", href:"#/experiencia", tones:["#0f1a16","#1a5a4a","#3a9a7a"], label:"Experiência", image:MB.shot("havaiana", 4) },
+  { n:"04", t:"Folhear o cardápio", d:"Bebidas, espumantes, drinks e porções servidos na suíte.", href:"#/cardapio", tones:["#1a1408","#5a4210","#b8922a"], label:"Cardápio", image:MB.shot("inglesa", 6) },
+  { n:"05", t:"Onde fica e como chegar", d:"Jardim Panorama, Ipatinga — Google Maps e Waze.", href:"#/contato", tones:["#101620","#1a2a4a","#4a6a9a"], label:"Localização", image:"" },
+  { n:"06", t:"Tirar dúvidas", d:"Horários, pernoite, idade mínima e como reservar.", href:"#/sobre?to=duvidas", tones:["#141414","#2a2a2e","#5a5a64"], label:"Dúvidas", image:"" }
 ];

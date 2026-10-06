@@ -23,16 +23,19 @@ const wait   = ms => new Promise(r => setTimeout(r, ms));
 const fromPrice = p => p.oneHour ?? p.twoHours;
 const fromLabel = p => p.oneHour ? "1 hora" : "2 horas";
 
+const PENDING = "Aguardando material";
+/* Quadro de mídia: fundo no tom da suíte. Sem fotografia, fica o nome com a legenda "Aguardando material" */
 function makePH(name, tones, label, opts={}){
   const el = document.createElement("div");
   el.className = "ph" + (opts.quiet ? " quiet" : "");
   el.style.setProperty("--ph-bg", tones[1]);
+  el.style.setProperty("--ph-deep", tones[0]);
   el.setAttribute("role","img");
-  el.setAttribute("aria-label", `${name} — ${label || "ambiente"} do Motel Montblack em Ipatinga (imagem ilustrativa)`);
-  el.innerHTML = `<span class="ph-arc" aria-hidden="true"></span><span class="ph-mono" aria-hidden="true">Montblack</span><span class="ph-name">${name}${label?`<small>${label}</small>`:""}</span>`;
+  el.setAttribute("aria-label", `${name} — ${PENDING.toLowerCase()}`);
+  el.innerHTML = `<span class="ph-name" aria-hidden="true">${name}</span><span class="ph-wait" aria-hidden="true">${PENDING}</span>`;
   return el;
 }
-/* Imagem com fade-in; se falhar, some e deixa o placeholder aparecer */
+/* Imagem com fade-in; se falhar, some e o quadro volta a mostrar "Aguardando material" */
 function makeImg(src, alt, w, eager){
   const img = document.createElement("img");
   img.src = MB.img(src, w); img.alt = alt;
@@ -40,34 +43,24 @@ function makeImg(src, alt, w, eager){
   img.decoding = "async";
   const ready = () => img.classList.add("loaded");
   img.onload = ready;
-  img.onerror = () => { img.parentElement?.classList.remove("has-img","quiet"); img.remove(); };
+  img.onerror = () => { img.parentElement?.classList.remove("has-img"); img.remove(); };
   if(img.complete && img.naturalWidth) ready();
   return img;
 }
-/* Fotografias: quando `src` existir, usa <img> sobre o placeholder (que serve de fundo enquanto carrega) */
+/* Fotografias: quando `src` existir, a <img> cobre o quadro (que serve de fundo enquanto ela carrega) */
 function media(container, src, name, tones, label, opts={}){
   container.innerHTML = "";
   const ph = makePH(name, tones, label, opts);
   if(src){
-    ph.appendChild(makeImg(src, `${name} — ${label||"ambiente"} (imagem ilustrativa)`, opts.w, opts.eager));
-    ph.classList.add("quiet","has-img");
+    ph.removeAttribute("role"); ph.removeAttribute("aria-label");
+    ph.appendChild(makeImg(src, `${name} — ${label || "ambiente"}`, opts.w, opts.eager));
+    ph.classList.add("has-img");
   }
   container.appendChild(ph);
   return ph;
 }
 function lockScroll(lock){ document.body.classList.toggle("no-scroll", lock); }
 function suiteById(id){ return suites.find(s => s.id === id); }
-
-/* ------------------------------------------------------------
-   LOADER
------------------------------------------------------------- */
-function initLoader(){
-  const loader = $("#loader");
-  const done = () => loader.classList.add("done");
-  if(document.readyState === "complete") setTimeout(done, 250);
-  else window.addEventListener("load", () => setTimeout(done, 250));
-  setTimeout(done, 2400); /* nunca prender o usuário */
-}
 
 /* ------------------------------------------------------------
    ROUTER
@@ -207,7 +200,7 @@ function renderHeroStack(){
   const stack = $("#heroStack");
   Object.values(categories).forEach((cat, i) => {
     const a = document.createElement("a");
-    a.className = "plate p" + (i+1);
+    a.className = "plate p" + (3 - i);
     a.href = `#/suites?cat=${cat.id}`;
     a.setAttribute("aria-label", `${cat.title}: ${cat.count} suítes, ${fromLabel(cat.prices)} a partir de ${fmtBRL(fromPrice(cat.prices))}`);
     const m = document.createElement("span"); m.className = "plate-media";
@@ -261,7 +254,8 @@ function bindPreview(el, getData){
   el.addEventListener("mouseenter", () => {
     if(!wideScreen.matches) return;
     const d = getData();
-    media(hoverPreview.el, d.image, d.name, d.tones, d.label, { w:700, eager:true });
+    if(!d.image) return;
+    media(hoverPreview.el, d.image, d.name, d.tones, d.label, { quiet:true, w:600, eager:true });
     hoverPreview.el.classList.add("visible");
   });
   el.addEventListener("mouseleave", () => hoverPreview.el.classList.remove("visible"));
@@ -297,7 +291,7 @@ function renderFeatured(){
         <h3>${s.name}</h3>
         <span>${s.categoryLabel}<b>${fmtBRL(fromPrice(s.prices))} · ${fromLabel(s.prices)}</b></span>
       </div>`;
-    media(a.querySelector(".tile-media"), s.images[0], s.name, s.tones, s.views[0], { w: i === 0 ? 1400 : 900 });
+    media(a.querySelector(".tile-media"), s.images[0], s.name, s.tones, s.views[0], { quiet:true, w:1200 });
     grid.appendChild(a);
   });
 }
@@ -336,7 +330,7 @@ function renderCategoryColumns(){
         <div><span>Pernoite</span><b>${fmtBRL(p.overnight)}</b></div>
       </div>
       <a class="link-arrow" href="#/suites?cat=${cat.id}">Ver suítes ${cat.label} <span class="arrow">→</span></a>`;
-    media(col.querySelector(".cat-col-media"), cat.image, cat.title, cat.tones, "Categoria", { w:900 });
+    media(col.querySelector(".cat-col-media"), cat.image, cat.title, cat.tones, "Categoria", { quiet:true, w:900 });
     wrap.appendChild(col);
   });
 }
@@ -348,10 +342,10 @@ function renderSuiteIndex(){
     li.className = "sx-row";
     li.dataset.category = s.category;
     li.innerHTML = `
-      <a href="#/suites/${s.id}" data-cursor="Ver suíte" aria-label="Suíte ${s.name}, ${s.categoryLabel}">
+      <a href="#/suites/${s.id}" data-cursor="Ver suíte" aria-label="Suíte ${s.name}, ${s.categoryLabel}${s.images.length ? "" : ", " + PENDING.toLowerCase()}">
         <span class="sx-num">${pad2(i+1)}</span>
         <span class="sx-thumb"></span>
-        <span class="sx-name">${s.name}<small>${s.categoryLabel}</small></span>
+        <span class="sx-name">${s.name}<small>${s.categoryLabel}${s.images.length ? "" : `<i>${PENDING}</i>`}</small></span>
         <span class="sx-desc">${s.description}</span>
         <span class="sx-price"><span>${fromLabel(s.prices)}</span><b>${fmtBRL(fromPrice(s.prices))}</b></span>
         <span class="sx-arrow" aria-hidden="true">→</span>
@@ -398,17 +392,16 @@ function renderPriceTable(){
 /* ------------------------------------------------------------
    SUÍTE — PÁGINA DE DETALHE + GALERIA + LIGHTBOX
 ------------------------------------------------------------ */
-let detailSuite = null, galleryIndex = 0;
+/* galleryItems = filme (quando houver) + fotos, na ordem em que aparecem no trilho */
+let detailSuite = null, galleryItems = [], galleryIndex = 0;
 function paintSuite(s){
-  detailSuite = s; galleryIndex = 0;
-  const hero = $("#detailHero");
-  hero.querySelector(".ph")?.remove();
-  const heroPh = makePH(s.name, s.tones, s.views[0], { quiet:true });
-  if(s.images[0]){ heroPh.appendChild(makeImg(s.images[0], "", 1800, true)); heroPh.classList.add("has-img"); }
-  hero.insertBefore(heroPh, hero.firstChild);
+  detailSuite = s;
+  $("#detailHero").style.setProperty("--tone", s.tones[0]);
+  media($("#detailCover"), s.images[0], s.name, s.tones, s.views[0], { w:1200, eager:true });
   $("#detailCat").textContent = "Suíte " + s.categoryLabel;
   $("#detailName").textContent = s.name;
   $("#detailDesc").textContent = s.description;
+  $("#detailFrom").innerHTML = `${fromLabel(s.prices)} a partir de <b>${fmtBRL(fromPrice(s.prices))}</b>`;
   $("#detailAmenities").innerHTML = s.amenities.map(a => `<li>${a}</li>`).join("");
 
   const rows = [];
@@ -428,65 +421,73 @@ function paintSuite(s){
   paintGallery();
 }
 function paintGallery(){
-  const s = detailSuite;
-  const main = $("#galleryMain");
-  main.querySelector(".ph")?.remove();
-  const ph = makePH(s.name, s.tones, s.views[galleryIndex]);
-  if(s.images[galleryIndex]){
-    ph.appendChild(makeImg(s.images[galleryIndex], `${s.name} — ${s.views[galleryIndex]} (imagem ilustrativa)`, 1400, true));
-    ph.classList.add("quiet","has-img");
-  }
-  main.insertBefore(ph, main.firstChild);
-  $("#galleryCounter").textContent = `${galleryIndex+1} / ${s.views.length}`;
-  const thumbs = $("#galleryThumbs");
-  thumbs.innerHTML = "";
-  s.views.forEach((v, i) => {
-    const t = document.createElement("button");
-    t.className = "gallery-thumb";
-    t.setAttribute("role","tab");
-    t.setAttribute("aria-current", String(i === galleryIndex));
-    t.setAttribute("aria-label", `Ver imagem: ${v}`);
-    media(t, s.images[i], s.name, s.tones, v, { w:400 });
-    t.addEventListener("click", () => { galleryIndex = i; paintGallery(); });
-    thumbs.appendChild(t);
+  const s = detailSuite, rail = $("#galleryRail");
+  galleryItems = [];
+  if(s.film) galleryItems.push({ type:"film", src:s.film.src, thumb:s.film.poster, label:"Filme da suíte" });
+  s.images.forEach((src, i) => galleryItems.push({ type:"photo", src, thumb:src, label:s.views[i] }));
+  const has = galleryItems.length > 0, n = s.images.length;
+  rail.hidden = !has;
+  $("#galleryArrows").hidden = !has;
+  $("#galleryPending").hidden = has;
+  $("#galleryCount").textContent = has ? `${n} ${n === 1 ? "foto" : "fotos"}${s.film ? " · 1 filme" : ""}` : "";
+  rail.innerHTML = "";
+  rail.scrollLeft = 0;
+  galleryItems.forEach((it, i) => {
+    const film = it.type === "film";
+    const b = document.createElement("button");
+    b.className = "shot" + (film ? " is-film" : "");
+    b.dataset.cursor = film ? "Assistir" : "Ampliar";
+    b.setAttribute("aria-label", film ? `Assistir ao filme da suíte ${s.name}` : `Ampliar foto: ${it.label}`);
+    b.innerHTML = `<span class="shot-media"></span><span class="shot-cap">${it.label}</span>`;
+    media(b.firstElementChild, it.thumb, s.name, s.tones, it.label, { quiet:true, w: film ? 0 : 600, eager: i < 4 });
+    if(film) b.firstElementChild.insertAdjacentHTML("beforeend", `<span class="shot-play" aria-hidden="true"></span>`);
+    b.addEventListener("click", () => openLightbox(i));
+    rail.appendChild(b);
   });
 }
-function galleryGo(dir){
-  const n = detailSuite.views.length;
+function railGo(dir){
+  const rail = $("#galleryRail"), first = rail.firstElementChild;
+  if(!first) return;
+  const step = first.getBoundingClientRect().width + parseFloat(getComputedStyle(rail).columnGap || 0);
+  rail.scrollBy({ left: dir * step, behavior: prefersReduced.matches ? "auto" : "smooth" });
+}
+function lightboxGo(dir){
+  const n = galleryItems.length;
+  if(n < 2) return;
   galleryIndex = (galleryIndex + dir + n) % n;
-  paintGallery();
-  if($("#lightbox").classList.contains("open")) paintLightbox();
+  paintLightbox();
 }
 function initGallery(){
-  $("#galleryPrev").addEventListener("click", e => { e.stopPropagation(); galleryGo(-1); });
-  $("#galleryNext").addEventListener("click", e => { e.stopPropagation(); galleryGo(1); });
-  const main = $("#galleryMain");
-  main.addEventListener("click", e => { if(e.target.closest(".gallery-nav")) return; openLightbox(); });
-  main.addEventListener("keydown", e => {
-    if(e.key === "Enter" || e.key === " "){ e.preventDefault(); openLightbox(); }
-    if(e.key === "ArrowRight") galleryGo(1);
-    if(e.key === "ArrowLeft") galleryGo(-1);
-  });
-  swipe(main, dir => galleryGo(dir));
+  $("#galleryPrev").addEventListener("click", () => railGo(-1));
+  $("#galleryNext").addEventListener("click", () => railGo(1));
 
   const lb = $("#lightbox");
   $("#lightboxClose").addEventListener("click", () => closeOverlay(lb));
-  $("#lightboxPrev").addEventListener("click", () => galleryGo(-1));
-  $("#lightboxNext").addEventListener("click", () => galleryGo(1));
-  lb.addEventListener("click", e => { if(e.target === e.currentTarget) closeOverlay(lb); });
+  $("#lightboxPrev").addEventListener("click", () => lightboxGo(-1));
+  $("#lightboxNext").addEventListener("click", () => lightboxGo(1));
+  lb.addEventListener("click", e => { if(e.target === e.currentTarget || e.target.id === "lightboxStage") closeOverlay(lb); });
   document.addEventListener("keydown", e => {
     if(!lb.classList.contains("open")) return;
-    if(e.key === "ArrowRight") galleryGo(1);
-    if(e.key === "ArrowLeft") galleryGo(-1);
+    if(e.key === "ArrowRight") lightboxGo(1);
+    if(e.key === "ArrowLeft") lightboxGo(-1);
   });
-  swipe(lb, dir => galleryGo(dir));
+  swipe(lb, dir => lightboxGo(dir));
 }
-function openLightbox(){ paintLightbox(); openOverlay($("#lightbox"), $("#lightboxClose")); }
+function openLightbox(i){ galleryIndex = i; paintLightbox(); openOverlay($("#lightbox"), $("#lightboxClose")); }
 function paintLightbox(){
-  const s = detailSuite, stage = $("#lightboxStage");
-  media(stage, s.images[galleryIndex], s.name, s.tones, s.views[galleryIndex], { w:1800, eager:true });
-  $("#lightboxCounter").textContent = `${galleryIndex+1} / ${s.views.length}`;
-  $("#lightboxCaption").textContent = `${s.name} — ${s.views[galleryIndex]}`;
+  const s = detailSuite, it = galleryItems[galleryIndex], stage = $("#lightboxStage");
+  stage.innerHTML = "";
+  if(it.type === "film"){
+    const v = document.createElement("video");
+    v.src = it.src; v.poster = it.thumb;
+    v.controls = true; v.autoplay = true; v.muted = true; v.loop = true; v.playsInline = true;
+    v.setAttribute("aria-label", `Filme da suíte ${s.name}`);
+    stage.appendChild(v);
+  } else {
+    stage.appendChild(makeImg(it.src, `${s.name} — ${it.label}`, 1200, true));
+  }
+  $("#lightboxCounter").textContent = `${galleryIndex+1} / ${galleryItems.length}`;
+  $("#lightboxCaption").textContent = `${s.name} · ${it.label}`;
 }
 function swipe(el, cb, threshold=44){
   let sx = null;
@@ -732,6 +733,7 @@ function openOverlay(overlay, focusEl){
 function closeOverlay(overlay){
   overlay.classList.remove("open");
   overlay.setAttribute("aria-hidden","true");
+  $$("video", overlay).forEach(v => v.remove());
   const i = overlayStack.indexOf(overlay);
   if(i > -1) overlayStack.splice(i, 1);
   if(overlayStack.length === 0) lockScroll(false);
@@ -744,7 +746,7 @@ function initOverlays(){
     if(e.key === "Escape" && overlayStack.length){ closeOverlay(overlayStack[overlayStack.length-1]); }
     if(e.key === "Tab" && overlayStack.length){
       const top = overlayStack[overlayStack.length-1];
-      const focusables = $$("button, [href], select, input, [tabindex]:not([tabindex='-1'])", top).filter(el => !el.hidden && el.offsetParent !== null);
+      const focusables = $$("button, [href], select, input, video[controls], [tabindex]:not([tabindex='-1'])", top).filter(el => !el.hidden && el.offsetParent !== null);
       if(!focusables.length) return;
       const first = focusables[0], last = focusables[focusables.length-1];
       if(e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
@@ -929,7 +931,6 @@ document.addEventListener("DOMContentLoaded", () => {
   $$(".page").forEach(p => { pageEls[p.dataset.page] = p; });
   $("#year").textContent = new Date().getFullYear();
 
-  initLoader();
   initNavigation();
   initHoverPreview();
   renderHeroStack();
