@@ -1,0 +1,8 @@
+{
+  "name": "montblack-motion",
+  "private": true,
+  "description": "Video de divulgacao do site Montblack renderizado a partir de HTML",
+  "dependencies": {
+    "ws": "^7.5.10"
+  }
+}
