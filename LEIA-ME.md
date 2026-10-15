@@ -76,7 +76,10 @@ Dura cerca de 3 s. Esc, Enter, Tab, rolagem, toque ou clique pulam na hora. Não
 - **WhatsApp / telefone** — `MB.config.whatsapp` (somente números, ex.: `"5531999999999"`).
   Assim que preenchido, o botão "Enviar pelo WhatsApp" aparece na consulta de disponibilidade
   e o contato aparece na página Contato e no rodapé. Enquanto vazio, o site mostra
-  "Contato para reservas em atualização".
+  "Contato para reservas em atualização". O número também liga o **balão do WhatsApp** no canto
+  da tela (o mesmo balão do chat do Vale do Aço Digital e da Siteflux, nas cores do Montblack):
+  ele troca de cor conforme o fundo atrás dele e, numa suíte, a mensagem já sai com o nome dela.
+  Sem número, o balão não aparece. Para voltar ao topo, basta clicar no logotipo.
 - **Preços e períodos** — `MB.categories` (`prices`) e `MB.lodging` (pernoite, hora adicional, regras).
 - **Fotos e filmes das suítes** — o material é do próprio Montblack e fica em `assets/media/<id-da-suíte>/`:
   `01.webp`, `02.webp`… (1200 px de largura; a `01` é a capa), `01-sm.webp`… (as mesmas em 600 px, para
@@ -101,7 +104,10 @@ Dura cerca de 3 s. Esc, Enter, Tab, rolagem, toque ou clique pulam na hora. Não
   mesmo enquanto o Master Duplex não tem material.
 - **Experiência** — cada comodidade de `MB.experiences` mostra um desenho de linha animado, em vermelho,
   escolhido por `icon` (`hidro`, `teto`, `boate`, `ar`, `tv`, `frigobar`, `privacidade`, `temas`).
-  Os desenhos ficam em `EXP_ICONS`, no `site.js`.
+  Os desenhos ficam em `EXP_ICONS`, no `site.js`. A cena fica presa na tela enquanto se rola, e cada
+  comodidade tem o seu trecho de rolagem: `--exp-step` no `site.css` (hoje 60% da altura da tela, no mínimo
+  300px). Rolando rápido, o cartão anda um por vez, no máximo um a cada `EXP_STEP_MS` (450 ms, no `site.js`).
+  O cartão tem proporção fixa e cabe na altura e na largura disponíveis, então não é cortado em telas baixas.
 - **Cores escuras** — as áreas escuras usam o preto da marca (`--night`, preto com fundo de vinho) com uma luz
   vermelha; o vermelho (`--wine`) fica para chamadas e destaques. Não há preto neutro de fundo.
 - **Baralho da Home** — as cartas do topo da Home se embaralham sozinhas a cada ~3,6 s, mostrando as suítes
@@ -125,7 +131,14 @@ Dura cerca de 3 s. Esc, Enter, Tab, rolagem, toque ou clique pulam na hora. Não
 - **Galeria da suíte** — galeria imersiva (skills `hero-imersiva-miniaturas` + imagem revelada com máscara): a foto
   grande com moldura dourada e, ao fundo, a própria foto desfocada como luz ambiente da sala escura; ao lado, número,
   legenda e miniaturas numeradas. A próxima foto se abre como cortina, do lado para onde se vai; o filme toca mudo no
-  quadro. Miniaturas, setas, teclado e arraste no celular trocam; clicar na foto amplia.
+  quadro. Miniaturas, setas, teclado e arraste no tablet trocam; clicar na foto amplia.
+  **No celular (até 768px)** a galeria vira um **baralho de fotos**, na mesma linguagem do baralho da Home: a foto da
+  frente fica dentro da moldura dourada e as próximas espiam por trás, giradas como um leque. Tocar na foto embaralha
+  (a carta sai pela direita, passa por trás e vai para o fundo); arrastar para a esquerda leva a carta com o dedo;
+  arrastar para a direita puxa a anterior de volta. Pressionar afunda a carta, a moldura acende quando soltar já
+  troca, e cada troca dá um toque curto de vibração (Android). Nada amplia no celular. Na primeira vez que a galeria
+  aparece, a carta ensaia sair para mostrar que dá para arrastar. Setas ao lado do número fazem o mesmo. O código
+  fica em `BARALHO DE FOTOS` no `site.js` e no bloco `@media(max-width:768px)` do `site.css` (`.gal-deck`, `.gal-card`).
 - **Entradas no scroll** — mesmo padrão da Liga ForDoctor (`ENTRADAS NO SCROLL` no `site.js`): cada bloco volta ao
   início quando sai inteiro da tela e toca de novo na volta. Títulos `.h2` sobem linha a linha; listas com
   `data-stagger` entram item a item; fotos com `data-mask` são descobertas de baixo para cima; `.reveal` sobe e

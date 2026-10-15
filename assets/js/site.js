@@ -192,6 +192,14 @@ function initNavigation(){
   $$(".mm-links a, .mm-bottom [data-open-availability]", menu).forEach(a => a.addEventListener("click", closeMenu));
   document.addEventListener("keydown", e => { if(e.key === "Escape" && menu.classList.contains("open")) closeMenu(); });
   window.addEventListener("hashchange", closeMenu);
+
+  /* o logotipo (e o link do menu) da página em que a pessoa já está não troca a rota, então nada
+     rolaria: volta ao topo. É o caminho de volta ao topo do site (não há botão próprio). */
+  $$("a.brand, [data-nav]").forEach(a => a.addEventListener("click", e => {
+    if(a.getAttribute("href") !== (location.hash || "#/")) return;
+    e.preventDefault();
+    window.scrollTo({ top:0, behavior: prefersReduced.matches ? "auto" : "smooth" });
+  }));
 }
 
 /* ------------------------------------------------------------
@@ -535,7 +543,10 @@ function renderPriceTable(){
     <tbody>${rows.map(([label, get, note]) => `
       <tr><td>${label}${note ? `<small>${note}</small>` : ""}</td>${cats.map(c => {
         const v = get(c);
-        return `<td>${v == null ? `<span class="na">—</span>` : `<span class="pt-cur">R$</span>${v.toFixed(2).replace(".", ",")}`}</td>`;
+        /* o R$ fica no começo da coluna e o valor alinha pela direita (vírgulas uma embaixo da outra) */
+        return `<td>${v == null
+          ? `<span class="pt-cur is-blank" aria-hidden="true">R$</span><span class="pt-val is-na"><i aria-hidden="true">—</i><span class="sr-only">não disponível</span></span>`
+          : `<span class="pt-cur">R$</span><span class="pt-val">${v.toFixed(2).replace(".", ",")}</span>`}</td>`;
       }).join("")}</tr>`).join("")}
     </tbody>`;
 }
@@ -578,9 +589,11 @@ function paintSuite(s){
    e miniaturas numeradas. A próxima foto se abre como cortina, do lado
    para onde se vai, assentando com um leve zoom; a atual fica respirando
    devagar. O filme toca mudo no quadro. Um só índice comanda miniaturas,
-   setas, teclado e arraste no celular; clique na foto amplia.
+   setas, teclado e arraste; clique na foto amplia. No celular, a foto grande
+   e as miniaturas dão lugar ao baralho de fotos (mais abaixo).
 ------------------------------------------------------------ */
-const gal = { i:-1, token:0 };
+const gal = { i:-1, token:0, cards:null, flying:[], nudged:false };
+const galDeckMQ = window.matchMedia("(max-width: 768px)");
 function paintGallery(){
   const s = detailSuite;
   galleryItems = [];
@@ -595,6 +608,10 @@ function paintGallery(){
   $("#galLayers").innerHTML = "";
   $("#galAmbient").innerHTML = "";
   $("#galCap").innerHTML = "";
+  deckFinish();
+  $("#galCards").innerHTML = "";
+  gal.cards = null;
+  gal.nudged = false;
   if(!has) return;
   $("#galEyebrow").textContent = `Suíte ${s.number} · ${s.name}`;
   $("#galTotal").textContent = `/ ${pad2(galleryItems.length)}`;
@@ -615,13 +632,14 @@ function paintGallery(){
   gal.i = -1;
   galShow(0, 0);
 }
-function galShow(i, dir){
+/* how: "tap" (toque na carta), "drag" (arraste) ou "step" (setas e teclado) — só o baralho usa */
+function galShow(i, dir, how){
   const n = galleryItems.length;
   if(!n) return;
   i = (i + n) % n;
   if(i === gal.i) return;
   if(dir === undefined) dir = gal.i < 0 ? 0 : (i > gal.i ? 1 : -1);
-  const s = detailSuite, it = galleryItems[i], film = it.type === "film", my = ++gal.token;
+  const s = detailSuite, it = galleryItems[i], film = it.type === "film", my = ++gal.token, from = gal.i;
   gal.i = i;
 
   /* painel: número, legenda que sobe de dentro da máscara, progresso e miniatura ativa */
@@ -637,6 +655,27 @@ function galShow(i, dir){
   $("#galStage").setAttribute("aria-label", film ? `Assistir ao filme da suíte ${s.name}` : `Ampliar foto: ${it.label}`);
   $("#galStage").dataset.cursor = film ? "Assistir" : "Ampliar";
 
+  if(galDeckMQ.matches) deckMove(from, dir, how);
+  else galStageShow(it, film, dir, my);
+
+  /* luz ambiente: a própria foto, desfocada, cruza com a anterior */
+  const amb = $("#galAmbient"), glow = document.createElement("img");
+  glow.alt = ""; glow.decoding = "async";
+  glow.src = film ? it.thumb : MB.img(it.thumb, 320);
+  glow.onload = () => {
+    if(my !== gal.token) return;
+    amb.appendChild(glow);
+    const prev = [...amb.children].filter(g => g !== glow);
+    if(prefersReduced.matches){ prev.forEach(g => g.remove()); return; }
+    glow.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 1200, easing: "ease" }).onfinish = () => prev.forEach(g => g.remove());
+  };
+
+  /* pré-carrega a próxima e a anterior */
+  [i + 1, i - 1].forEach(k => { const nx = galleryItems[(k + n) % n]; if(nx.type === "photo") new Image().src = nx.src; });
+}
+/* foto grande (tablet e computador) */
+function galStageShow(it, film, dir, my){
+  const s = detailSuite;
   /* nova camada por cima; só entra depois de a imagem decodificar (a atual fica até lá) */
   const layers = $("#galLayers"), layer = document.createElement("span");
   layer.className = "gal-layer";
@@ -659,23 +698,204 @@ function galShow(i, dir){
     old.forEach(l => l.animate([{ transform: "translateX(0)", opacity: 1 }, { transform: `translateX(${-dir * 6}%)`, opacity: .35 }], { duration: 1100, easing: "cubic-bezier(.77,0,.18,1)", fill: "forwards" }));
     a.onfinish = a.oncancel = clean;
   });
-
-  /* luz ambiente: a própria foto, desfocada, cruza com a anterior */
-  const amb = $("#galAmbient"), glow = document.createElement("img");
-  glow.alt = ""; glow.decoding = "async";
-  glow.src = film ? it.thumb : MB.img(it.thumb, 320);
-  glow.onload = () => {
-    if(my !== gal.token) return;
-    amb.appendChild(glow);
-    const prev = [...amb.children].filter(g => g !== glow);
-    if(prefersReduced.matches){ prev.forEach(g => g.remove()); return; }
-    glow.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 1200, easing: "ease" }).onfinish = () => prev.forEach(g => g.remove());
-  };
-
-  /* pré-carrega a próxima e a anterior */
-  [i + 1, i - 1].forEach(k => { const nx = galleryItems[(k + n) % n]; if(nx.type === "photo") new Image().src = nx.src; });
 }
-function galGo(dir){ galShow(gal.i + dir, dir); }
+function galGo(dir){ galShow(gal.i + dir, dir, "step"); }
+/* passou a largura do celular para a do computador (ou o contrário): remonta na mesma foto */
+function galRemount(){
+  if(!galleryItems.length || gal.i < 0) return;
+  const i = gal.i;
+  deckFinish();
+  $("#galLayers").innerHTML = "";
+  gal.cards?.forEach(c => c.querySelector("video")?.pause());
+  gal.i = -1;
+  galShow(i, 0);
+}
+
+/* ------------------------------------------------------------
+   BARALHO DE FOTOS (celular, até 768px) — a mesma linguagem do baralho da Home.
+   As fotos são cartas empilhadas: a da frente dentro da moldura dourada, as
+   próximas espiando por trás, giradas como um leque. Tocar embaralha (a carta
+   sai pela direita, passa por trás e assenta no fundo); arrastar para a
+   esquerda leva a carta com o dedo e a solta atrás do baralho; arrastar para a
+   direita puxa a anterior de volta, vinda da esquerda. Pressionar afunda a
+   carta, a moldura acende quando soltar já troca, e cada troca dá um toque
+   curto no aparelho (onde houver vibração). Nada amplia: a foto já é grande.
+------------------------------------------------------------ */
+const DECK_SLOTS = 4;                                        /* frente + 2 à vista + 1 escondida no fundo */
+const DECK_OFF_LEFT = "translate3d(-118%,4%,30px) rotate(-18deg)";   /* fora da tela, à esquerda */
+function deckBuild(){
+  const s = detailSuite, box = $("#galCards");
+  box.innerHTML = "";
+  gal.cards = galleryItems.map((it, k) => {
+    const c = document.createElement("div");
+    c.className = "gal-card";
+    c.dataset.slot = "x";
+    c.innerHTML = `<span class="gal-card-in"><span class="gal-card-media"></span><small class="gal-card-num" aria-hidden="true">${pad2(k + 1)}</small></span>`;
+    media(c.querySelector(".gal-card-media"), it.thumb, s.name, s.tones, it.label, { quiet:true, w: it.type === "film" ? 0 : 1200, eager: k < 3 });
+    box.appendChild(c);
+    return c;
+  });
+}
+/* posição de cada carta no baralho a partir da foto atual (0 = frente; "x" = escondida no fundo) */
+function deckPlace(){
+  const n = galleryItems.length;
+  gal.cards.forEach((c, k) => {
+    const r = (k - gal.i + n) % n;
+    c.dataset.slot = r < DECK_SLOTS ? r : "x";
+    c.setAttribute("aria-hidden", String(r !== 0));
+  });
+  /* o filme só toca na frente */
+  galleryItems.forEach((it, k) => {
+    if(it.type !== "film") return;
+    const c = gal.cards[k], front = k === gal.i;
+    let v = c.querySelector("video");
+    if(front && !v){
+      c.querySelector(".ph").insertAdjacentHTML("beforeend", `<video muted loop playsinline autoplay preload="auto" src="${it.src}" aria-hidden="true"></video>`);
+      v = c.querySelector("video");
+    }
+    if(v){ if(front) v.play().catch(() => {}); else v.pause(); }
+  });
+}
+/* a anterior só vem "da mão" (pela esquerda) quando não está à vista no baralho */
+function deckPrevCard(){
+  const n = galleryItems.length;
+  return gal.cards && n >= DECK_SLOTS ? gal.cards[(gal.i - 1 + n) % n] : null;
+}
+function deckFly(c, frames, duration, easing){
+  const a = c.animate(frames, { duration, easing });
+  gal.flying.push(a);
+  a.onfinish = a.oncancel = () => { c.classList.remove("is-flying"); gal.flying = gal.flying.filter(x => x !== a); };
+}
+function deckFinish(){ gal.flying.slice().forEach(a => a.finish()); }
+function deckRest(){
+  const deck = $("#galDeck");
+  deck.classList.remove("is-dragging", "is-armed");
+  deck.style.setProperty("--p", 0);
+  gal.cards?.forEach(c => { c.style.transform = ""; c.style.opacity = ""; c.classList.remove("is-held"); });
+}
+function deckMove(from, dir, how){
+  if(!gal.cards) deckBuild();
+  deckFinish();
+  const out = gal.cards[from], inn = gal.cards[gal.i];
+  if(!how || !out || prefersReduced.matches){ deckRest(); deckPlace(); return; }
+  const fromOut = getComputedStyle(out).transform, fromIn = getComputedStyle(inn).transform;
+  if(dir > 0){
+    /* a carta da frente vai para o fundo; as outras avançam pela transição do CSS */
+    out.classList.add("is-flying");
+    deckRest(); deckPlace();
+    const to = getComputedStyle(out).transform;
+    const path = how === "drag"
+      ? [{ transform: DECK_OFF_LEFT, opacity: 1, offset: .42 }, { transform: "translate3d(-30%,-6%,-120px) rotate(-4deg)", opacity: .9, offset: .72 }]
+      : [{ transform: "translate3d(78%,-8%,30px) rotate(10deg)", opacity: 1, offset: .34 }, { transform: "translate3d(46%,-6%,-200px) rotate(8deg)", opacity: 1, offset: .62 }];
+    deckFly(out, [{ transform: fromOut, opacity: 1 }, ...path, { transform: to, opacity: 0 }], how === "drag" ? 820 : 1050, "cubic-bezier(.55,.06,.28,1)");
+  } else {
+    /* a anterior volta da esquerda e assenta por cima; as outras recuam uma casa */
+    const pulled = how === "drag" && inn.style.transform;   /* veio na mão, arrastada pelo dedo (deckDrag) */
+    inn.classList.add("is-flying");
+    deckRest(); deckPlace();
+    const to = getComputedStyle(inn).transform;
+    deckFly(inn, [{ transform: pulled ? fromIn : DECK_OFF_LEFT, opacity: 1 }, { transform: to, opacity: 1 }], pulled ? 560 : 900, "cubic-bezier(.22,1,.36,1)");
+  }
+}
+/* durante o arraste: para a esquerda a carta da frente acompanha o dedo, girando
+   como quem a joga; para a direita a anterior entra pela esquerda. --p avança ou
+   recua as cartas de trás na mesma medida. */
+function deckDrag(dx){
+  const deck = $("#galDeck"), W = deck.offsetWidth, f = gal.cards[gal.i], pc = deckPrevCard();
+  const t = Math.min(1, Math.abs(dx) / (W * .9));
+  deck.classList.toggle("is-armed", Math.abs(dx) > W * .28);
+  if(dx > 0 && pc){
+    deck.style.setProperty("--p", (-t).toFixed(3));
+    f.style.transform = "";
+    pc.style.transform = `translate3d(${Math.min(0, -W * 1.18 + dx * 1.25).toFixed(1)}px,${(4 * (1 - t)).toFixed(2)}%,30px) rotate(${(-18 * (1 - t)).toFixed(2)}deg)`;
+    pc.style.opacity = 1;
+    pc.classList.add("is-held");
+  } else {
+    deck.style.setProperty("--p", (dx < 0 ? t : -t).toFixed(3));
+    f.style.transform = `translate3d(${dx.toFixed(1)}px,${(Math.abs(dx) * .05).toFixed(1)}px,0) rotate(${(dx * .05).toFixed(2)}deg)`;
+    if(pc){ pc.style.transform = ""; pc.style.opacity = ""; pc.classList.remove("is-held"); }
+  }
+}
+/* soltou antes do ponto: a carta volta com mola e a anterior sai pela esquerda */
+function deckSpring(){
+  const f = gal.cards[gal.i], pc = deckPrevCard();
+  const pcFrom = pc && pc.style.transform ? getComputedStyle(pc).transform : null;
+  if(pcFrom) pc.classList.add("is-flying");
+  f.classList.add("is-springing");
+  deckRest();
+  setTimeout(() => f.classList.remove("is-springing"), 650);
+  if(pcFrom) deckFly(pc, [{ transform: pcFrom, opacity: 1 }, { transform: DECK_OFF_LEFT, opacity: 1, offset: .85 }, { transform: DECK_OFF_LEFT, opacity: 0 }], 420, "cubic-bezier(.22,1,.36,1)");
+}
+/* primeira vez que o baralho aparece: a carta da frente ensaia sair para a esquerda e volta (mostra que dá para arrastar) */
+function deckNudge(){
+  const f = gal.cards && gal.cards[gal.i];
+  if(!f || prefersReduced.matches || galleryItems.length < 2) return;
+  const base = getComputedStyle(f).transform;
+  const a = f.animate([
+    { transform: base },
+    { transform: "translate3d(-9%,.5%,0) rotate(-4deg)", offset: .4 },
+    { transform: "translate3d(2%,0,0) rotate(.8deg)", offset: .72 },
+    { transform: base }
+  ], { duration: 1300, delay: 300, easing: "cubic-bezier(.45,0,.2,1)" });
+  gal.flying.push(a);
+  a.onfinish = a.oncancel = () => { gal.flying = gal.flying.filter(x => x !== a); };
+}
+function buzz(){ try{ if(navigator.vibrate && navigator.userActivation?.hasBeenActive !== false) navigator.vibrate(12); }catch(e){} }
+function initDeck(){
+  const deck = $("#galDeck");
+  let g = null;   /* gesto em curso */
+  deck.addEventListener("pointerdown", e => {
+    if(g || !gal.cards || galleryItems.length < 2 || e.button > 0) return;
+    deckFinish();
+    g = { id: e.pointerId, x0: e.clientX, y0: e.clientY, t0: performance.now(), dx: 0, drag: false, hist: [[performance.now(), e.clientX]] };
+    gal.cards[gal.i].classList.add("is-pressed");
+  });
+  deck.addEventListener("pointermove", e => {
+    if(!g || e.pointerId !== g.id) return;
+    const dx = e.clientX - g.x0, dy = e.clientY - g.y0;
+    if(!g.drag){
+      if(Math.abs(dy) > 10 && Math.abs(dy) > Math.abs(dx)){ end(e, true); return; }   /* é rolagem da página */
+      if(Math.abs(dx) < 8) return;
+      g.drag = true;
+      try{ deck.setPointerCapture(e.pointerId); }catch(err){}
+      gal.cards[gal.i].classList.remove("is-pressed");
+      if(!prefersReduced.matches) deck.classList.add("is-dragging");
+    }
+    g.dx = dx;
+    g.hist.push([performance.now(), e.clientX]);
+    if(g.hist.length > 6) g.hist.shift();
+    if(!prefersReduced.matches) deckDrag(dx);
+  });
+  const end = (e, cancel) => {
+    if(!g || e.pointerId !== g.id) return;
+    const m = g; g = null;
+    gal.cards[gal.i].classList.remove("is-pressed");
+    if(!m.drag){
+      if(!cancel && performance.now() - m.t0 < 650){ buzz(); galShow(gal.i + 1, 1, "tap"); }
+      return;
+    }
+    const [t1, x1] = m.hist[0];
+    const v = (e.clientX - x1) / Math.max(1, performance.now() - t1);   /* px/ms nos últimos movimentos */
+    const flick = Math.abs(v) > .45 && Math.sign(v) === Math.sign(m.dx) && Math.abs(m.dx) > 24;
+    if(!cancel && (Math.abs(m.dx) > deck.offsetWidth * .28 || flick)){
+      const dir = m.dx < 0 ? 1 : -1;
+      buzz();
+      galShow(gal.i + dir, dir, "drag");
+    } else if(!prefersReduced.matches) deckSpring();
+  };
+  deck.addEventListener("pointerup", e => end(e, false));
+  deck.addEventListener("pointercancel", e => end(e, true));
+  deck.addEventListener("contextmenu", e => e.preventDefault());   /* segurar a carta não abre o menu da imagem */
+
+  $("#galBack").addEventListener("click", () => galGo(-1));
+  $("#galFwd").addEventListener("click", () => galGo(1));
+  new IntersectionObserver(([en]) => {
+    if(!en.isIntersecting || gal.nudged || !galDeckMQ.matches || !gal.cards) return;
+    gal.nudged = true;
+    deckNudge();
+  }, { threshold: .7 }).observe(deck);
+  galDeckMQ.addEventListener("change", galRemount);
+}
 function lightboxGo(dir){
   const n = galleryItems.length;
   if(n < 2) return;
@@ -690,9 +910,10 @@ function initGallery(){
     if(e.key === "ArrowRight"){ e.preventDefault(); galGo(1); }
     if(e.key === "ArrowLeft"){ e.preventDefault(); galGo(-1); }
   });
-  /* celular: arrastar a foto para o lado troca; o toque simples amplia */
+  /* tablet: arrastar a foto para o lado troca; o toque simples amplia (no celular, o baralho cuida dos gestos) */
   let galSwiped = false;
   swipe($("#galStage"), dir => { galSwiped = true; setTimeout(() => { galSwiped = false; }, 350); galGo(dir); });
+  initDeck();
 
   const lb = $("#lightbox");
   $("#lightboxClose").addEventListener("click", () => closeOverlay(lb));
@@ -859,10 +1080,15 @@ const EXP_ICONS = {
 
 /* Cena 3D: um "baralho" de cartões em perspectiva, cada um com o ícone da
    comodidade — o da comodidade ativa vem para a frente e se desenha; os
-   próximos recuam em profundidade. */
-const expState = { active: 0, hoverLock: 0 };
+   próximos recuam em profundidade.
+   A cena fica presa na tela enquanto se rola pelo trilho #expTrack, e cada
+   comodidade tem o seu trecho de rolagem (--exp-step no CSS). Rolando rápido,
+   o cartão anda no máximo um passo a cada EXP_STEP_MS: os desenhos passam um
+   a um em vez de pular, e a lista ao lado acompanha o cartão, não o dedo. */
+const EXP_STEP_MS = 450;
+const expState = { active: -1, target: 0, last: 0, timer: 0, hold: 0 };
 function renderExperience(){
-  const list = $("#expList"), deck = $("#expDeck"), stage = $("#expStage");
+  const list = $("#expList"), deck = $("#expDeck"), stage = $("#expStage"), track = $("#expTrack");
   list.innerHTML = experiences.map((x, i) => `
     <li data-index="${i}"><span>${pad2(i+1)}</span><div><h3>${x.t}</h3><p>${x.d}</p></div></li>`).join("");
   experiences.forEach((x, i) => {
@@ -874,21 +1100,19 @@ function renderExperience(){
       <span class="exp-card-meta"><small>${pad2(i+1)}</small><b>${x.t}</b></span>`;
     deck.appendChild(card);
   });
+  track.style.setProperty("--exp-n", experiences.length);
   setExpActive(0);
 
-  /* hover / foco na lista (desktop) */
-  const items = $$("#expList li");
-  items.forEach(li => {
-    li.addEventListener("mouseenter", () => { expState.hoverLock = Date.now(); setExpActive(+li.dataset.index); });
-    li.addEventListener("click", () => setExpActive(+li.dataset.index));
-  });
-  /* scroll-spy: o item mais próximo do centro da tela define a cena (mobile e teclado) */
-  const spy = new IntersectionObserver(entries => {
-    if(Date.now() - expState.hoverLock < 800) return;
-    const hit = entries.filter(e => e.isIntersecting).sort((a,b) => b.intersectionRatio - a.intersectionRatio)[0];
-    if(hit) setExpActive(+hit.target.dataset.index);
-  }, { rootMargin: "-42% 0px -42% 0px", threshold: [0, .5, 1] });
-  items.forEach(li => spy.observe(li));
+  /* clique na lista: rola até o trecho daquela comodidade e já mostra o cartão */
+  $$("#expList li").forEach(li => li.addEventListener("click", () => scrollToExp(+li.dataset.index)));
+
+  let tick = 0;
+  const onScroll = () => { if(!tick) tick = requestAnimationFrame(() => { tick = 0; syncExpScroll(); }); };
+  window.addEventListener("scroll", onScroll, { passive:true });
+  window.addEventListener("resize", onScroll, { passive:true });
+  window.addEventListener("scrollend", () => { if(expState.hold){ expState.hold = 0; syncExpScroll(); } });
+  /* a janela da lista muda de altura (fonte carregou, giro de tela, página aberta): recentraliza */
+  new ResizeObserver(() => placeExpList()).observe($("#expWindow"));
 
   /* leve inclinação seguindo o cursor (apenas pointer fino) */
   if(prefersReduced.matches || !finePointer.matches) return;
@@ -905,6 +1129,61 @@ function renderExperience(){
   });
   stage.addEventListener("mouseleave", () => { deck.style.setProperty("--ry","0deg"); deck.style.setProperty("--rx","0deg"); });
 }
+/* posição do trilho: quanto já rolou com a cena presa (0 → 1) e a altura desse percurso */
+function expTrackPos(){
+  const track = $("#expTrack");
+  const run = track.offsetHeight - track.firstElementChild.offsetHeight;
+  if(run <= 0) return null;                      /* página oculta ou trilho sem percurso */
+  const r = track.getBoundingClientRect();
+  return { run, top: r.top + window.scrollY, p: Math.min(Math.max(-r.top / run, 0), 1), visible: r.bottom > 0 && r.top < window.innerHeight };
+}
+function syncExpScroll(){
+  const pos = expTrackPos();
+  if(!pos) return;
+  $(".exp-progress i").style.transform = `scaleX(${pos.p.toFixed(4)})`;
+  if(expState.hold > performance.now()) return;  /* rolagem do clique ainda a caminho */
+  expState.hold = 0;
+  /* cada comodidade é dona de 1/n do percurso; a histerese evita a troca de vaivém na divisa */
+  const n = experiences.length, raw = pos.p * n, cur = expState.target;
+  if(raw >= cur - .1 && raw < cur + 1.1) return;
+  expState.target = Math.min(n - 1, Math.floor(raw));
+  stepExp();
+}
+function stepExp(){
+  clearTimeout(expState.timer);
+  const { target, active } = expState;
+  if(target === active) return;
+  /* fora da tela ou com "reduzir movimento": vai direto, sem desfile de cartões */
+  if(!expTrackPos()?.visible || prefersReduced.matches){ setExpActive(target); return; }
+  const wait = expState.last + EXP_STEP_MS - performance.now();
+  if(wait > 0){ expState.timer = setTimeout(stepExp, wait); return; }
+  setExpActive(active + Math.sign(target - active));
+  expState.last = performance.now();
+  if(expState.active !== target) expState.timer = setTimeout(stepExp, EXP_STEP_MS);
+}
+function scrollToExp(i){
+  const pos = expTrackPos();
+  if(!pos) return;
+  const n = experiences.length;
+  clearTimeout(expState.timer);
+  expState.target = i;
+  expState.hold = performance.now() + 1600;      /* até a rolagem chegar, o cartão não volta a seguir o scroll */
+  setTimeout(syncExpScroll, 1650);
+  setExpActive(i);
+  window.scrollTo({ top: Math.round(pos.top + (i + .5) / n * pos.run), behavior: prefersReduced.matches ? "auto" : "smooth" });
+}
+/* desliza a lista para manter a comodidade ativa no meio da janela. Só trava no começo: no fim
+   a lista sobe além do último item, para ele não descer até o canto onde ficam os botões
+   flutuantes (balão do WhatsApp, "Consultar disponibilidade") */
+function placeExpList(){
+  const win = $("#expWindow"), list = $("#expList"), li = list.children[expState.active];
+  if(!li || !win.clientHeight) return;
+  const fits = list.offsetHeight <= win.clientHeight;
+  const y = fits ? 0 : Math.max(0, li.offsetTop - (win.clientHeight - li.offsetHeight) / 2);
+  list.style.setProperty("--list-y", `${-Math.round(y)}px`);
+  win.classList.toggle("fade-top", y > 1);
+  win.classList.toggle("fade-bottom", list.offsetHeight - y > win.clientHeight + 1);
+}
 function setExpActive(i){
   if(i === expState.active && $("#expDeck .exp-card.is-active")) return;
   expState.active = i;
@@ -918,6 +1197,7 @@ function setExpActive(i){
   });
   $$("#expList li").forEach(li => li.classList.toggle("is-active", +li.dataset.index === i));
   $("#expCount").textContent = `${pad2(i+1)} / ${pad2(n)}`;
+  placeExpList();
 }
 function initParallax(){
   if(prefersReduced.matches || !finePointer.matches) return;
@@ -1598,10 +1878,16 @@ function initContactStatus(){
   const hasPhone = Boolean(motelConfig.phone && motelConfig.phone.trim());
   if(!hasWhats && !hasPhone) return;
   const parts = [];
-  if(hasWhats) parts.push(`<a href="https://wa.me/${motelConfig.whatsapp.replace(/\D/g,"")}" target="_blank" rel="noopener noreferrer">WhatsApp</a>`);
+  if(hasWhats){
+    const num = motelConfig.whatsapp.replace(/\D/g,"");
+    parts.push(`<a href="https://wa.me/${num}" target="_blank" rel="noopener noreferrer">WhatsApp</a>`);
+    /* rodapé: o número sai do MB.config ("553195391120" → "+55 31 9539-1120") */
+    const foot = $("#footerWhats");
+    foot.href = `https://wa.me/${num}`;
+    foot.textContent = num.replace(/^(\d{2})(\d{2})(\d+)(\d{4})$/, "+$1 $2 $3-$4");
+  }
   if(hasPhone) parts.push(`<a href="tel:${motelConfig.phone.replace(/\s/g,"")}">${motelConfig.phone}</a>`);
   $("#contactStatus").innerHTML = "Reservas e consultas: " + parts.join(" · ");
-  $("#footerContactStatus").innerHTML = parts.join(" · ");
 }
 
 /* ------------------------------------------------------------
@@ -1632,20 +1918,91 @@ function initLocation(){
 }
 
 /* ------------------------------------------------------------
-   CTA FLUTUANTE / BARRA INFERIOR / VOLTAR AO TOPO
+   CTA FLUTUANTE / BARRA INFERIOR
+   No celular o canto (com o balão do WhatsApp) sobe junto com a barra:
+   --bar-h guarda a altura dela, medida de novo a cada redimensionamento.
 ------------------------------------------------------------ */
 function initFloating(){
-  const float = $("#floatCta"), bar = $("#bottomBar"), top = $("#backTop");
+  const float = $("#floatCta"), bar = $("#bottomBar"), dock = $("#floatDock");
   const onScroll = () => {
     const show = window.scrollY > window.innerHeight * .7;
     const modalOpen = overlayStack.length > 0 || $("#mobileMenu").classList.contains("open");
     float.classList.toggle("visible", show && !modalOpen);
     bar.classList.toggle("visible", show && !modalOpen);
-    top.classList.toggle("visible", show && !modalOpen);
+    dock.classList.toggle("lift", show && !modalOpen);
   };
+  const measureBar = () => { if(bar.offsetHeight) document.documentElement.style.setProperty("--bar-h", `${bar.offsetHeight}px`); };
   window.addEventListener("scroll", onScroll, { passive:true });
+  window.addEventListener("resize", measureBar);
+  measureBar();
   onScroll();
-  top.addEventListener("click", () => window.scrollTo({ top:0, behavior: prefersReduced.matches ? "auto" : "smooth" }));
+}
+
+/* ------------------------------------------------------------
+   BALÃO DO WHATSAPP
+   Aparece quando MB.config.whatsapp está preenchido. Numa suíte, a
+   mensagem já sai com o nome dela. A cor acompanha o fundo que está atrás
+   do balão: mede no centro dele, no máximo uma vez por quadro, e só grava
+   quando muda (data-tema: claro, vinho ou escuro; as cores estão em
+   site.css). O fundo é lido da própria página (cor ou degradê de cada
+   camada), então seções novas entram sem cadastro. Fotos e vídeos não
+   decidem: vale o fundo de quem os contém. Peças pequenas que passam por
+   baixo (botões, etiquetas) também não, para a cor não piscar na rolagem.
+------------------------------------------------------------ */
+function initWhatsFloat(){
+  const wa = $("#waFloat"), dock = $("#floatDock");
+  const num = (motelConfig.whatsapp || "").replace(/\D/g, "");
+  if(!num) return;
+
+  const setHref = () => {
+    const { page, param } = parseRoute();
+    const s = page === "suite" ? suiteById(param) : null;
+    const msg = s
+      ? `Olá! Vim pelo site e tenho interesse na Suíte ${s.number} (${s.name}).`
+      : "Olá! Vim pelo site do Montblack e gostaria de mais informações.";
+    wa.href = `https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
+  };
+
+  const SKIP = ".intro, .float-dock, .bottom-bar, .cursor, .hover-preview, img, video, canvas, svg, picture";
+  const rgba = v => { const n = (v.match(/[\d.]+/g) || []).map(Number); return n.length >= 3 ? [n[0], n[1], n[2], n.length > 3 ? n[3] : 1] : null; };
+  const themeOf = ([r, g, b]) => {
+    if((.2126 * r + .7152 * g + .0722 * b) / 255 > .45) return "claro";
+    return r - Math.max(g, b) > 36 ? "vinho" : "escuro";
+  };
+  const themeAt = (x, y) => {
+    for(const el of document.elementsFromPoint(x, y)){
+      if(el.closest(SKIP)) continue;
+      const box = el.getBoundingClientRect();
+      if(box.width < 160 || box.height < 100) continue;
+      const st = getComputedStyle(el);
+      const c = rgba(st.backgroundColor);
+      if(c && c[3] > .5) return themeOf(c);
+      if(st.backgroundImage.includes("gradient")){
+        const stops = (st.backgroundImage.match(/rgba?\([^)]*\)/g) || []).map(rgba).filter(k => k && k[3] > .3);
+        if(stops.length) return themeOf([0, 1, 2].map(i => stops.reduce((t, k) => t + k[i], 0) / stops.length));
+      }
+    }
+    return "claro";
+  };
+  let frame = 0;
+  const measure = () => {
+    frame = 0;
+    const r = wa.getBoundingClientRect();
+    const t = themeAt(r.left + r.width / 2, r.top + r.height / 2);
+    if(wa.dataset.tema !== t) wa.dataset.tema = t;
+  };
+  const request = () => { if(!frame) frame = requestAnimationFrame(measure); };
+
+  wa.hidden = false;
+  setHref();
+  measure();
+  window.addEventListener("scroll", request, { passive:true });
+  window.addEventListener("resize", request);
+  window.addEventListener("load", request);
+  window.addEventListener("hashchange", () => { setHref(); setTimeout(request, 300); });   /* depois da troca de página */
+  dock.addEventListener("transitionend", e => { if(e.target === dock) request(); });     /* o canto terminou de subir ou descer */
+  if("ResizeObserver" in window) new ResizeObserver(request).observe(document.body);   /* conteúdo que abre ou fecha sem rolagem */
+  new MutationObserver(request).observe(document.documentElement, { attributes:true, attributeFilter:["class"] });   /* fim da abertura */
 }
 
 /* ------------------------------------------------------------
@@ -1815,6 +2172,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initLocation();
   initContactStatus();
   initFloating();
+  initWhatsFloat();
   initScrollReveal();
   initCursor();
 

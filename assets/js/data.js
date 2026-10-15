@@ -48,7 +48,7 @@ MB.config = {
   city: "Ipatinga",
   address: "R. Serra Geral, 551 - Jardim Panorama, Ipatinga - MG, CEP 35164-236",
   addressLines: ["R. Serra Geral, 551", "Jardim Panorama", "Ipatinga - MG", "CEP 35164-236"],
-  whatsapp: "",      /* [INSERIR WHATSAPP — somente números, com DDI e DDD] */
+  whatsapp: "553195391120",   /* +55 31 9539-1120 — somente números, com DDI e DDD */
   phone: "",         /* [INSERIR TELEFONE] */
   instagram: "https://www.instagram.com/montblackipatinga/",
   instagramHandle: "@montblackipatinga",

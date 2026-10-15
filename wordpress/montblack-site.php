@@ -2,7 +2,7 @@
 /**
  * Plugin Name:       Montblack — Site
  * Description:       Publica o site do Motel Montblack (suítes, cardápio, experiência) como página inicial do WordPress. As fotos e os filmes ficam na pasta assets/media do plugin ou na Biblioteca de Mídia, com nomes como "mexicana-01.webp" e "mexicana-filme.mp4".
- * Version:           1.0.2
+ * Version:           1.0.3
  * Requires at least: 6.0
  * Requires PHP:      7.4
  * Author:            Motel Montblack

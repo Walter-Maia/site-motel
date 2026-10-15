@@ -486,13 +486,24 @@
         <span class="gal-layers" id="galLayers"></span>
         <span class="gal-zoom" aria-hidden="true">Ampliar</span>
       </button>
+      <!-- celular: baralho de fotos (a carta da frente dentro da moldura, as próximas espiando por trás) -->
+      <div class="gal-deck" id="galDeck" role="group" aria-label="Fotos da suíte">
+        <span class="gal-frame" aria-hidden="true"></span>
+        <div class="gal-cards" id="galCards"></div>
+      </div>
       <div class="gal-panel">
         <span class="gal-eyebrow" id="galEyebrow"></span>
-        <p class="gal-count" aria-hidden="true"><b id="galNum">01</b><span id="galTotal">/ 01</span></p>
+        <div class="gal-countrow">
+          <p class="gal-count" aria-hidden="true"><b id="galNum">01</b><span id="galTotal">/ 01</span></p>
+          <div class="gal-steps">
+            <button type="button" class="gallery-nav" id="galBack" aria-label="Foto anterior">←</button>
+            <button type="button" class="gallery-nav" id="galFwd" aria-label="Próxima foto">→</button>
+          </div>
+        </div>
         <p class="gal-cap" id="galCap" aria-live="polite"></p>
         <span class="gal-progress" id="galProgress" aria-hidden="true"></span>
         <div class="gal-thumbs" id="galThumbs" role="group" aria-label="Escolher foto ou filme"></div>
-        <p class="gal-hint">Toque na foto para ampliar</p>
+        <p class="gal-hint"><span class="hint-wide">Toque na foto para ampliar</span><span class="hint-deck">Toque na foto ou arraste para os lados</span></p>
       </div>
     </div>
     <div class="container gallery-pending" id="galleryPending" hidden>
@@ -538,22 +549,32 @@
   </div>
 
   <section class="exp-section" aria-labelledby="expTitle">
-    <div class="container exp-layout">
-      <div class="exp-scene-col">
-        <div class="exp-stage" id="expStage" aria-label="Ilustrações das comodidades; a ilustração em destaque acompanha o item da lista">
-          <div class="exp-deck" id="expDeck"></div>
-          <div class="exp-stage-foot" aria-hidden="true">
-            <span class="exp-count" id="expCount">01 / 08</span>
-            <span class="exp-hint">O que espera por você em cada suíte</span>
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Comodidades</span>
+        <h2 class="h2" id="expTitle">O que você encontra em cada suíte</h2>
+      </div>
+    </div>
+    <!-- trilho: a cena fica presa na tela enquanto se rola por ele, um trecho por comodidade -->
+    <div class="exp-track" id="expTrack">
+      <div class="exp-pin">
+        <div class="container exp-layout">
+          <div class="exp-scene-col">
+            <div class="exp-stage" id="expStage" aria-label="Ilustrações das comodidades; a ilustração em destaque acompanha o item da lista">
+              <div class="exp-deck" id="expDeck"></div>
+              <div class="exp-stage-foot" aria-hidden="true">
+                <span class="exp-count" id="expCount">01 / 08</span>
+                <span class="exp-progress"><i></i></span>
+                <span class="exp-hint">Role para ver cada uma</span>
+              </div>
+            </div>
+          </div>
+          <div class="exp-list-col">
+            <div class="exp-list-window reveal reveal-d1" id="expWindow">
+              <ol class="exp-list" id="expList"></ol>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="exp-list-col">
-        <div class="section-head reveal">
-          <span class="eyebrow">Comodidades</span>
-          <h2 class="h2" id="expTitle">O que você encontra em cada suíte</h2>
-        </div>
-        <ol class="exp-list reveal reveal-d1" id="expList" data-stagger="each"></ol>
       </div>
     </div>
   </section>
@@ -755,22 +776,17 @@
         <span class="brand-name">MONT<b>BLACK</b></span>
         <p class="footer-about">Suítes temáticas e experiências privadas em Ipatinga. Privacidade, conforto e hospitalidade — 24 horas por dia.</p>
       </div>
-      <nav aria-label="Links do rodapé">
-        <h4>Navegue</h4>
+      <div>
+        <h4>WhatsApp</h4>
         <div class="footer-links">
-          <a href="#/suites">Suítes</a>
-          <a href="#/experiencia">Experiência</a>
-          <a href="#/cardapio">Cardápio</a>
-          <a href="#/sobre">Sobre</a>
-          <a href="#/sobre?to=duvidas">Dúvidas frequentes</a>
-          <a href="#/contato">Contato</a>
+          <a href="https://wa.me/553195391120" id="footerWhats" target="_blank" rel="noopener noreferrer">+55 31 9539-1120</a>
+          <span class="footer-note">Reservas e consultas</span>
         </div>
-      </nav>
+      </div>
       <div>
         <h4>Social</h4>
         <div class="footer-links">
           <a href="https://www.instagram.com/montblackipatinga/" target="_blank" rel="noopener noreferrer">Instagram — @montblackipatinga</a>
-          <span class="footer-note" id="footerContactStatus">Contato para reservas em atualização.</span>
         </div>
       </div>
       <div>
@@ -792,11 +808,27 @@
 </footer>
 
 <!-- FLOATING CTAS -->
-<button class="float-cta" id="floatCta" data-open-availability>Consultar disponibilidade</button>
+<!-- No computador a "Consultar disponibilidade" e o balão do WhatsApp ficam lado a lado no canto; no celular a barra de reserva
+     ocupa o pé da tela e o balão sobe para cima dela. O balão é o do chat do Vale do Aço Digital e da Siteflux, nas cores do
+     Montblack: só aparece com MB.config.whatsapp preenchido, e as cores mudam com o fundo atrás dele (site.js e site.css). -->
+<div class="float-dock" id="floatDock">
+  <button class="float-cta" id="floatCta" data-open-availability>Consultar disponibilidade</button>
+  <a class="wa-float" id="waFloat" href="#" target="_blank" rel="noopener noreferrer" aria-label="Falar com o Montblack pelo WhatsApp (abre em nova aba)" hidden>
+    <svg viewBox="0 -6.015 256.01 256.01" aria-hidden="true" focusable="false">
+      <path class="wa-anel2" d="M130.99,243.97C60.15,244.91,4.45,193.35,2.19,126.91-.15,57.8,54.39,2.42,125.02.08c70.55-2.34,128.91,49.53,130.93,117.64,2.05,68.9-53,125.29-124.96,126.25ZM190.62,117.47c-2.08-38.14-30.68-60.88-63.66-59.89-31.83.95-56.54,23.29-59.33,57.33-3.24,39.51,22.01,70.37,59.17,71.61,36.5,1.22,66.13-26.68,63.82-69.06Z"/>
+      <path class="wa-anel" d="M128.87,243.97C58.03,244.91,2.33,193.35.07,126.91-2.28,57.8,52.27,2.42,122.9.08c70.55-2.34,128.91,49.53,130.93,117.64,2.05,68.9-53,125.29-124.96,126.25ZM188.5,117.47c-2.08-38.14-30.68-60.88-63.66-59.89-31.83.95-56.54,23.29-59.33,57.33-3.24,39.51,22.01,70.37,59.17,71.61,36.5,1.22,66.13-26.68,63.82-69.06Z"/>
+      <path class="wa-balao" d="M55.89,130.08c2.98,25.92,17.15,45.69,39.68,56.39,19.76,9.38,44.6,8.66,66.28-4.59,7.1,9.33,11.94,17.44,18.91,29.82,20.98-53.28,32.98-118.84-20.93-150.23-5.54-3.23-20.36-6.95-26.73-7.52-43.93-3.93-81.99,34.62-77.22,76.13Z"/>
+      <g class="wa-pontos">
+        <path d="M105.38,114.98c3.5-1.82,7.61-.37,9.13,2.73s.55,7.38-2.73,8.98c-3.05,1.49-6.91.77-8.69-2.03-2-3.14-1.55-7.68,2.3-9.68Z"/>
+        <path d="M122.09,114.98c3.5-1.82,7.61-.37,9.13,2.73,1.54,3.14.55,7.38-2.73,8.98-3.05,1.49-6.91.77-8.69-2.03-2-3.14-1.55-7.68,2.3-9.68Z"/>
+        <path d="M138.8,114.98c3.5-1.82,7.61-.37,9.13,2.73,1.54,3.14.55,7.38-2.73,8.98-3.05,1.49-6.91.77-8.69-2.03-2-3.14-1.55-7.68,2.3-9.68Z"/>
+      </g>
+    </svg>
+  </a>
+</div>
 <div class="bottom-bar" id="bottomBar">
   <button class="btn btn-primary" data-open-availability>Consultar disponibilidade</button>
 </div>
-<button class="back-top" id="backTop" aria-label="Voltar ao topo">↑</button>
 
 <!-- PREVIEW FLUTUANTE (hover em listas, apenas desktop) -->
 <div class="hover-preview" id="hoverPreview" aria-hidden="true"></div>
