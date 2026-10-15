@@ -216,7 +216,6 @@
 
 <!-- CURSOR -->
 <div class="cursor" id="cursor" aria-hidden="true">
-  <span class="cursor-dot"></span>
   <span class="cursor-label" id="cursorLabel">Ver</span>
 </div>
 
@@ -287,7 +286,7 @@
           <button class="btn btn-outline on-dark" data-open-availability>Consultar disponibilidade</button>
         </div>
       </div>
-      <div class="hero-visual hero-enter d2" aria-label="Três categorias de suítes">
+      <div class="hero-visual hero-enter d2" aria-label="Suítes do Montblack">
         <div class="hero-stack" id="heroStack"></div>
       </div>
     </div>
@@ -309,7 +308,7 @@
         </div>
         <p class="lead">Suítes, valores, cardápio e endereço. Cada assunto a um toque de distância.</p>
       </div>
-      <ol class="intent-list reveal reveal-d1" id="intentList"></ol>
+      <ol class="intent-list reveal reveal-d1" id="intentList" data-stagger></ol>
     </div>
   </section>
 
@@ -332,11 +331,10 @@
     <div class="container">
       <span class="eyebrow on-dark reveal">A experiência Montblack</span>
       <h2 class="h2 reveal reveal-d1" id="expPrevTitle">Tudo aqui foi pensado para que o mundo lá fora espere <em>algumas horas.</em></h2>
-      <ul class="word-row reveal reveal-d2" aria-label="Comodidades principais">
+      <ul class="word-row reveal reveal-d2" aria-label="Comodidades principais" data-stagger>
         <li>Hidromassagem</li>
         <li>Teto móvel</li>
         <li>Boate privativa</li>
-        <li>Spa nas Master</li>
         <li>Ambientes temáticos</li>
       </ul>
       <div class="reveal reveal-d3"><a href="#/experiencia" class="link-arrow on-dark">Ver tudo que faz parte da estadia <span class="arrow">→</span></a></div>
@@ -366,7 +364,7 @@
         <h2 class="h2" id="faqPrevTitle">Antes de vir</h2>
         <a href="#/sobre?to=duvidas" class="link-arrow" style="margin-top:22px">Todas as dúvidas <span class="arrow">→</span></a>
       </div>
-      <div class="faq-list reveal reveal-d1" id="faqHome"></div>
+      <div class="faq-list reveal reveal-d1" id="faqHome" data-stagger></div>
     </div>
   </section>
 
@@ -402,7 +400,7 @@
         <span class="eyebrow">Categorias</span>
         <h2 class="h2" id="catTitle">Três formas de viver o Montblack</h2>
       </div>
-      <div class="cat-columns reveal reveal-d1" id="catColumns"></div>
+      <div class="cat-columns reveal reveal-d1" id="catColumns" data-stagger></div>
     </div>
   </section>
 
@@ -420,7 +418,7 @@
           <button class="filter-btn" data-filter="duplex" aria-pressed="false">Master Duplex <i>2</i></button>
         </div>
       </div>
-      <ol class="suite-index reveal reveal-d1" id="suiteIndex"></ol>
+      <ol class="suite-index reveal reveal-d1" id="suiteIndex" data-stagger="each"></ol>
       <p class="index-empty" id="indexEmpty" hidden>Nenhuma suíte nesta categoria.</p>
     </div>
   </section>
@@ -440,6 +438,7 @@
       <ul class="notes reveal reveal-d2">
         <li>Pernoite válido de <b>domingo à sexta-feira</b>, das <b>18:00 às 14:00</b>.</li>
         <li>Hora adicional após 2 horas: <b>R$ 30,00</b> em todas as suítes.</li>
+        <li>Promoção: <b>1 hora por R$ 98,00</b> nas suítes VIP (201 a 213).</li>
         <li>Entrada permitida somente para maiores de 18 anos. Preços sujeitos a alteração sem aviso prévio.</li>
       </ul>
     </div>
@@ -479,7 +478,23 @@
         <button class="gallery-nav" id="galleryNext" aria-label="Próximas fotos">→</button>
       </div>
     </div>
-    <div class="gallery-rail" id="galleryRail" tabindex="0" aria-label="Fotos e filme da suíte"></div>
+    <!-- galeria imersiva: foto grande com moldura dourada, luz ambiente da própria foto ao fundo e miniaturas ao lado -->
+    <div class="gal-ambient" id="galAmbient" aria-hidden="true"></div>
+    <div class="container gal" id="gal" hidden>
+      <button type="button" class="gal-stage" id="galStage" data-cursor="Ampliar">
+        <span class="gal-frame" aria-hidden="true"></span>
+        <span class="gal-layers" id="galLayers"></span>
+        <span class="gal-zoom" aria-hidden="true">Ampliar</span>
+      </button>
+      <div class="gal-panel">
+        <span class="gal-eyebrow" id="galEyebrow"></span>
+        <p class="gal-count" aria-hidden="true"><b id="galNum">01</b><span id="galTotal">/ 01</span></p>
+        <p class="gal-cap" id="galCap" aria-live="polite"></p>
+        <span class="gal-progress" id="galProgress" aria-hidden="true"></span>
+        <div class="gal-thumbs" id="galThumbs" role="group" aria-label="Escolher foto ou filme"></div>
+        <p class="gal-hint">Toque na foto para ampliar</p>
+      </div>
+    </div>
     <div class="container gallery-pending" id="galleryPending" hidden>
       <b>Aguardando material</b>
       <p>As fotografias e o filme desta suíte serão publicados em breve. Valores e comodidades já estão disponíveis abaixo.</p>
@@ -489,14 +504,10 @@
   <div class="container detail-body">
     <div class="detail-main">
       <h2 class="detail-section-title">Comodidades</h2>
-      <ul class="detail-amenities" id="detailAmenities"></ul>
+      <ul class="detail-amenities" id="detailAmenities" data-stagger></ul>
       <details class="detail-rules">
         <summary>Regras da casa</summary>
-        <div class="detail-rules-body">
-          Proibida a entrada de menores de 18 anos.<br>
-          O estabelecimento não se responsabiliza por objetos esquecidos.<br>
-          Preços sujeitos a alteração sem aviso prévio.
-        </div>
+        <ul class="detail-rules-body" id="detailRules"></ul>
       </details>
     </div>
     <aside class="detail-side">
@@ -529,11 +540,11 @@
   <section class="exp-section" aria-labelledby="expTitle">
     <div class="container exp-layout">
       <div class="exp-scene-col">
-        <div class="exp-stage" id="expStage" aria-label="Fotografias das suítes; a foto em destaque acompanha o item da lista">
+        <div class="exp-stage" id="expStage" aria-label="Ilustrações das comodidades; a ilustração em destaque acompanha o item da lista">
           <div class="exp-deck" id="expDeck"></div>
           <div class="exp-stage-foot" aria-hidden="true">
-            <span class="exp-count" id="expCount">01 / 09</span>
-            <span class="exp-hint">Fotografias das suítes do Montblack</span>
+            <span class="exp-count" id="expCount">01 / 08</span>
+            <span class="exp-hint">O que espera por você em cada suíte</span>
           </div>
         </div>
       </div>
@@ -542,7 +553,7 @@
           <span class="eyebrow">Comodidades</span>
           <h2 class="h2" id="expTitle">O que você encontra em cada suíte</h2>
         </div>
-        <ol class="exp-list reveal reveal-d1" id="expList"></ol>
+        <ol class="exp-list reveal reveal-d1" id="expList" data-stagger="each"></ol>
       </div>
     </div>
   </section>
@@ -551,7 +562,7 @@
     <div class="container">
       <span class="eyebrow on-dark reveal">O que nos define</span>
       <h2 class="h2 reveal reveal-d1" id="privTitle">Alguns momentos pedem silêncio, cuidado e <em>um bom cenário.</em></h2>
-      <ul class="word-row reveal reveal-d2" aria-label="Valores do Montblack">
+      <ul class="word-row reveal reveal-d2" aria-label="Valores do Montblack" data-stagger>
         <li>Privacidade</li>
         <li>Conforto</li>
         <li>Discrição</li>
@@ -577,7 +588,7 @@
     <div class="container">
       <span class="eyebrow on-dark">Cardápio</span>
       <h1 class="display-sm">Um menu <em>para folhear.</em></h1>
-      <p class="hero-sub">Cervejas geladas, espumantes, drinks e porções generosas, servidos na privacidade da sua suíte.</p>
+      <p class="hero-sub">Sugestões do chef, refeições para dois, pizzas, drinks e frigobar, servidos na privacidade da sua suíte.</p>
     </div>
   </div>
 
@@ -585,16 +596,20 @@
     <div class="container">
       <div class="book-wrap reveal">
         <div class="book-scene">
-          <div class="book" id="book" data-cursor="Virar" aria-label="Cardápio interativo em formato de livro"></div>
+          <div class="book" id="book" data-cursor="Virar" aria-label="Cardápio interativo em formato de livro. Use as setas do teclado para virar as páginas."></div>
         </div>
         <div class="book-controls">
           <button class="book-btn" id="bookPrev" aria-label="Página anterior">←</button>
-          <span class="book-status" id="bookStatus" aria-live="polite">Capa</span>
+          <div class="book-meter">
+            <span class="book-status" id="bookStatus" aria-live="polite">Capa</span>
+            <span class="book-progress" id="bookProgress" aria-hidden="true"></span>
+          </div>
           <button class="book-btn" id="bookNext" aria-label="Próxima página">→</button>
         </div>
+        <div class="book-chapters" id="bookChapters" role="group" aria-label="Ir para um capítulo do cardápio"></div>
         <button class="link-arrow book-alt-toggle" id="menuListToggle" aria-expanded="false" aria-controls="menuListPlain">Prefere ler como lista? Ver cardápio completo</button>
         <div class="menu-list-plain" id="menuListPlain"></div>
-        <p class="consult-hint">Valores dos itens do cardápio: consulte na recepção ou diretamente na suíte.</p>
+        <p class="consult-hint">Preços sujeitos a alteração sem aviso prévio. Pratos preparados na hora: cerca de 25 minutos.</p>
       </div>
     </div>
   </section>
@@ -626,12 +641,12 @@
       </div>
       <div class="prose reveal reveal-d1">
         <p>O Montblack é referência em hospedagem de alto padrão no Vale do Aço: são 21 suítes temáticas em três categorias — VIP, Master e Master Duplex — com hidromassagem, teto móvel e boate privativa, no Jardim Panorama, em Ipatinga. Aberto todos os dias, 24 horas, com atendimento discreto e serviço completo na suíte.</p>
-        <p>O Motel Montblack nasceu em Ipatinga com uma convicção simples: encontros especiais merecem ambientes à altura. Por isso, cada uma das nossas 21 suítes conta uma história diferente — da atmosfera futurista da High Tech ao romantismo clássico da Titanic.</p>
+        <p>O Motel Montblack nasceu em Ipatinga com uma convicção simples: encontros especiais merecem ambientes à altura. Por isso, cada uma das nossas 21 suítes conta uma história diferente — da atmosfera futurista da High Tech ao romantismo clássico da Naval.</p>
         <p>Hidromassagem, boate privativa, teto móvel e um atendimento que respeita, acima de tudo, a sua privacidade. É assim que transformamos algumas horas em uma lembrança.</p>
       </div>
     </div>
     <div class="container">
-      <ul class="facts-row reveal" aria-label="Números do Montblack">
+      <ul class="facts-row reveal" aria-label="Números do Montblack" data-stagger>
         <li><b>21</b><span>suítes temáticas</span></li>
         <li><b>03</b><span>categorias de conforto</span></li>
         <li><b>24h</b><span>todos os dias</span></li>
@@ -647,7 +662,7 @@
         <h2 class="h2" id="faqTitle">O que costumam nos perguntar</h2>
         <p class="lead" style="margin-top:16px">Não encontrou o que procura? Fale conosco pelo Instagram ou venha nos visitar — estamos abertos 24 horas.</p>
       </div>
-      <div class="faq-list reveal reveal-d1" id="faqFull"></div>
+      <div class="faq-list reveal reveal-d1" id="faqFull" data-stagger="each"></div>
     </div>
   </section>
 
@@ -657,7 +672,7 @@
         <span class="eyebrow">Regras da casa</span>
         <h2 class="h2" id="rulesTitle">Para que tudo corra bem</h2>
       </div>
-      <ol class="rules-list reveal reveal-d1" id="rulesList"></ol>
+      <ol class="rules-list reveal reveal-d1" id="rulesList" data-stagger></ol>
     </div>
   </section>
 
@@ -735,7 +750,7 @@
 <!-- FOOTER -->
 <footer class="footer">
   <div class="container">
-    <div class="footer-grid">
+    <div class="footer-grid" data-stagger>
       <div>
         <span class="brand-name">MONT<b>BLACK</b></span>
         <p class="footer-about">Suítes temáticas e experiências privadas em Ipatinga. Privacidade, conforto e hospitalidade — 24 horas por dia.</p>

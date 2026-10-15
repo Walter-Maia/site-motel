@@ -1,2 +1,5 @@
 # Originais da câmera (HEIC, DNG, vídeos HDR): o site usa apenas assets/media/
 assets/Suites/
+
+# Plugin do WordPress e mídias (gerados por wordpress/gerar-plugin.py)
+dist/
